@@ -1,24 +1,49 @@
 // main.js
 
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require('electron')
+const { app, ipcMain, BrowserWindow } = require('electron')
+const url  = require('url')
 const path = require('path')
+
+//Download Manager
+const DownloadManager = require("electron-download-manager");
+DownloadManager.register({
+  downloadFolder: app.getPath("downloads") + "/realvuemedia"
+});
+
 
 function createWindow () {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    frame: false,
+    fullscreen: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      nodeIntegration: true,
+      contextIsolation: false
+     // preload: path.join(__dirname, 'preload.js')
     }
   })
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
+  DownloadManager.download({
+    url: "https://i.imgur.com/H124sSq.jpg"
+}, function (error, info) {
+    if (error) {
+        console.log(error);
+        return;
+    }
+
+    console.log("DONE: " + info.url);
+});
+
+
+
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+ mainWindow.webContents.openDevTools()
 }
 
 // This method will be called when Electron has finished
@@ -43,3 +68,14 @@ app.on('window-all-closed', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+
+ipcMain.on('asynchronous-message', (event, arg) => {
+  console.log(arg) // prints "ping"
+  event.reply('asynchronous-reply', 'pong')
+})
+
+ipcMain.on('synchronous-message', (event, arg) => {
+  console.log(arg) // prints "ping"
+  event.returnValue = 'pong'
+})

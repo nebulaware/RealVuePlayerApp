@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>RealVue Player Tools</title>
+</head>
+
+<body>
+<style>
+	#measure{
+		width:100%;
+		height:100%;
+		position: fixed;
+		top:0px;
+		bottom:0px;
+		left:0px;
+		right:0px;
+		text-align: center;
+		font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", Verdana, "sans-serif";
+	}
+</style>
+	
+<div id="measure">
+
+	<h3>Screen Dimensions: <span id="dimensions">unknown</span></h3>
+	<button onclick="GetDimensions();">Update</button>
+</div>	
+	
+<script>
+	
+	function GetDimensions(){
+		
+		var width 	= _('measure').offsetWidth;
+		var height	= _('measure').offsetHeight;
+		
+		_('dimensions').innerHTML = width + 'px X ' + height + 'px';
+		
+	}
+	
+	function _(x){
+		return document.getElementById(x);
+	}
+	
+	
+	//CALL
+	GetDimensions();
+	
+</script>
+</body>
+</html>

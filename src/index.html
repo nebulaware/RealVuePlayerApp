@@ -1,21 +1,393 @@
-<!--index.html-->
-
-<!DOCTYPE html>
+<!doctype html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <title>Hello World!</title>
-  </head>
-  <body>
-    <h1>Hello World!</h1>
-    We are using Node.js <span id="node-version"></span>,
-    Chromium <span id="chrome-version"></span>,
-    and Electron <span id="electron-version"></span>.
+<head>
+<meta charset="utf-8">
+	
+	<!-- Web player tracking -->
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
 
-    <!-- You can also require other files to run in this process -->
-    <script src="./renderer.js"></script>
-  </body>
+	  gtag('config', 'UA-161408737-2');
+	</script>	
+	
+	<title>RealVue Player</title>
+
+
+	<link rel="manifest" href="/manifest.json">	
+	<link rel="icon" href="favicon-16x16.png" type="image/png" sizes="16x16">	
+
+	
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="msapplication-tap-highlight" content="no" />
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, viewport-fit=cover" />
+	<meta name="application-name" content="RealVue Player">
+	<meta name="apple-mobile-web-app-title" content="RealVue Player">
+	
+	
+	<link rel="stylesheet" href="css/font-awesome.min.css?v=21029" type="text/css" />
+	<link rel="stylesheet" href="css/plugins/video.css?v=21029" type="text/css" />
+	
+	<link href="css/style.css?v=21029" rel="stylesheet">	
+	
+</head>
+
+<body onresize="App.UpdateResolution();">
+	
+	<div id="console" class="hide"><div class="console_buttons"><button onclick="App.Console('shrink')">Shrink / Expand</button></div><ul id="console_log"></ul></div>
+	
+	<!-- preloader -->
+	<div id="preloader" class="loading"><img onclick="App.Preloader()" src="images/logo.svg" alt="logo"><div class="preloader-wrapper big active"><div class="spinner-layer spinner-blue-only"><div class="circle-clipper left"> <div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div></div></div>		
+	
+	
+	<!-- wrapper -->
+	<div id="maindisplay" class="wrapper wizard">
+		
+		<div id="viewer"><div class="standby"><img src="images/logo.svg" alt="logo"><h1>Not Launching?</h1><h3><a href="legacy.html">Try running the legacy player</a></h3><p></p></div></div>
+		
+
+		<div id="sidebar">
+			<button class="close" onclick="Display.DisplaySidebar('close');"><i class="fas fa-times"></i></button>
+			<h2 id="sidebar_title"></h2>
+			<div id="sidebar_content"></div>
+		</div>
+		
+		<div id="tools">
+
+
+			<button id="btn_reload" onclick="App.Reload();"><i class="fas fa-sync"></i> Reload</button>
+			<button id="btn_channel" onclick="Display.ChannelSidebar('load');"><i class="fas fa-broadcast-tower"></i> Channels</button>
+			<button id="btn_schedule" onclick="Display.ScheduleSidebar();"><i class="fas fa-calendar-alt"></i> Schedule</button>
+			<button id="btn_status" onclick="Display.StatusSidebar();"><i class="fas fa-tv"></i> Display Status</button>
+			
+			<div class="system_status">
+				<div class="currenttime"><span id="ctime">00:00</span><span id="cdate">00-00-0000</span></div>
+				<div id="network_status" class="online"><i id="network_connection" class="fas fa-network-wired"></i></div>
+				<div id="notification_status" class=""><i class="fas fa-stopwatch"></i></div>
+				<div id="location_status" class=""><i class="fas fa-map-marker-alt"></i></div>
+				
+			</div>
+		</div>	
+
+	</div>	
+
+<!-- You can also require other files to run in this process -->
+<!-- <script src="./renderer.js"></script>	-->
+<script src="js/functions.js?v=21029"></script>	
+<script src="js/app.js?v=21029"></script>
+<script src="js/display.js?v=21029"></script>
+<script src="js/wizard.js?v=21029"></script>	
+<script src="js/presenter.js?v=21029"></script>
+	
+<!-- LOAD SOURCES -->
+<script src="js/sources/idx.js?v=21029"></script>	
+<script src="js/sources/image.js?v=21029"></script>	
+<script src="js/sources/video.js?v=21029"></script>	
+<script src="js/sources/playlist.js?v=21029"></script>	
+<script src="js/sources/slider.js?v=21029"></script>	
+<script src="js/sources/youtube.js?v=21029"></script>	
+<script src="js/sources/vimeo.js?v=21029"></script>	
+<script src="js/sources/website.js?v=21029"></script>	
+<script src="js/sources/stream.js?v=21029"></script>
+
+<!-- LOAD PLUGINS -->	
+<script src="js/plugins/video.min.js?v=21029"></script>
+<script src="js/plugins/scroll.min.js?v=21029"></script>
+
+<!-- LOAD EXTERNAL RESOURCES -->
+<script src="https://player.vimeo.com/api/player.js"></script>
+	
+<!-- FIREBASE -->
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-app.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+	 https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-messaging.js"></script>	
+<script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-firestore.js"></script>
+	<script>
+ 	
+	const electron = require('electron');
+	const ipcRenderer = electron.ipcRenderer;
+	const fs = require('fs')
+
+	ipcRenderer.on('hello', (event,data) => {
+		toast.info('Hello From Main Process');
+	});
+
+	console.log(ipcRenderer.sendSync('synchronous-message', 'ping')) // prints "pong"
+
+	ipcRenderer.on('asynchronous-reply', (event, arg) => {
+	console.log(arg) // prints "pong"
+	})
+	ipcRenderer.send('asynchronous-message', 'ping')
+
+
+
+
+
+
+
+	//LOADED ASSURANCE
+	setTimeout(function(){
+		
+		if(!App.AppInitStart){
+			toast.error('App appears to ran into an issue. Attempting to resolve');
+			App.Init();
+			
+		}
+		
+	},5000);
+	
+		
+
+		
+		
+	//NEED TO MOVE THIS CLASS	
+	function NotifyClass (){
+		
+		this.Running = false;
+		this.messaging;
+		
+
+		
+		
+		
+		
+		this.Init = function Init(){
+			
+			if(this.Running){
+				console.log('Firebase should be running');
+				return false;
+			}
+			
+			this.Running = true;
+			
+		
+			
+			// Add the public key generated from the console here.
+			Notify.messaging.usePublicVapidKey("BEm89om1VwU7nlde7xovKsrxVtZCT8Ht9hU7T8bkrlMF5GFGL5AHVYY06PTM6xt7HSjHkDERyuOmrE5k5YAtX4E");				
+			
+			//MESSAGE RECEIVED
+			Notify.messaging.onMessage(function(payload){
+				console.log('Received Push Notification:',payload);
+				App.PushResponse(payload);
+			});	
+
+
+			// Get Instance ID token. Initially this makes a network call, once retrieved
+			// subsequent calls to getToken will return from cache.
+			Notify.messaging.getToken().then((currentToken) => {
+
+			if (currentToken) {
+				App.PushTokenUpdate(currentToken);
+				updateUIForPushEnabled(currentToken);
+
+			  } else {
+				// Show permission request.
+				console.log('No Instance ID token available. Request permission to generate one.');
+				// Show permission UI.
+				//updateUIForPushPermissionRequired();
+				setTokenSentToServer(false);
+			  }
+			}).catch((err) => {
+			  console.log('An error occurred while retrieving token. ', err);
+			  showToken('Error retrieving Instance ID token. ', err);
+			  setTokenSentToServer(false);
+			});
+
+			Notify.messaging.onTokenRefresh(() => {
+			  messaging.getToken().then((refreshedToken) => {
+				console.log('Token refreshed.');
+				// Indicate that the new Instance ID token has not yet been sent to the
+				// app server.
+				setTokenSentToServer(false);
+				// Send Instance ID token to app server.
+				App.PushTokenUpdate(refreshedToken);
+				// ...
+			  }).catch((err) => {
+				console.log('Unable to retrieve refreshed token ', err);
+				showToken('Unable to retrieve refreshed token ', err);
+			  });
+			});					
+			
+		}
+		
+		
+		
+		
+	}	
+		
+	var Notify = new NotifyClass();	
+
+	//FIREBASE CLASS MANAGEMENT
+		
+	function FireClass (){
+		
+		this.Running = false;
+		this.Store;
+		
+		
+		this.config = {
+			apiKey: "AIzaSyDQirIDv80g37XF7h7_zfzZRFnDoyqsTr8",
+			authDomain: "realvue-app.firebaseapp.com",
+			databaseURL: "https://realvue-app.firebaseio.com",
+			projectId: "realvue-app",
+			storageBucket: "realvue-app.appspot.com",
+			messagingSenderId: "245849698031",
+			appId: "1:245849698031:web:9b4bf004d3195cf54fb51a",
+			measurementId: "G-RSDBZJJLZQ"
+		};			
+		
+		
+		this.Init = function Init(){
+			
+			console.log('Initializing Firebase');
+			
+			firebase.initializeApp(this.config);			
+			
+			this.Store = firebase.firestore();
+
+			
+			// Initialize Firebase
+			firebase.analytics();
+
+			Notify.messaging = firebase.messaging();				
+			
+			this.Running	= true; //Indicate firebase is running
+			App.FirebaseOn 	= true; //TELLS APP FIREBASE IS RUNNING
+			
+		}
+		
+		
+		this.UpdateDisplay = function UpdateDisplay(){
+			
+			return false;
+			
+			if(!this.Running){
+				return false; //CANNOT UPDATE BECAUSE FIREBASE APPEARS TO NOT BE RUNNING
+			}
+			
+			var Data = {};
+			
+			Data.location 	= App.Display.location;
+			Data.channel	= App.Display.channel;
+			Data.resolution	= App.Resolution;
+			Data.updated	= firebase.firestore.Timestamp.now();
+			
+		
+			if(App.Display.code == ''){
+				return false; //NO APPLICATION CODE TO LOG
+			}
+			
+			if(!App.NetCon ){
+				return false; //INTERNET CONNECTION SHOULD BE REQUIRED
+			}
+			
+			this.Store.collection('displays').doc(App.Display.code).set(Data).then(()=>{
+				
+				console.log("Document successfully written");
+				
+			})
+			.catch((error)=>{
+				
+				console.error("Error writing document", error);
+			})
+			
+			
+			
+		}
+		
+		
+	}
+	
+	var Fire = new FireClass();
+		
+	//INITIALIZE FIREBASE
+	Fire.Init();		
+		
+		
+		
+	//** FIREBASE FUNCTIONS - WILL MOVE TO ANOTHER LOCATION**//	
+	
+	function showToken (msg,error){
+		
+		toast.error(msg);
+		console.error('SHOW MESSAGE (firebase):',msg,error);
+		
+	}
+		
+	
+	function updateUIForPushEnabled(token){
+		
+		console.log ('UIforPushEnabled:',token);
+		App.PushRunning = true;
+		App.PushStatusBar();
+	}		
+	
+	function setTokenSentToServer(result){
+		
+		console.log('Token Sent To Server (firebase):',result);
+		
+	}	
+		
+		
+
+		
+	//REGISTER SERVICE WORKER
+	if ('serviceWorker' in navigator) {
+		window.addEventListener('load', function() {
+		  navigator.serviceWorker.register('sw.js');
+		});
+	}
+
+	
+	//SEE IF APP IS INSTALLABLE VIA PWD
+	if('onbeforeinstallprompt' in window){
+		
+		App.Installable = true;
+		
+		window.addEventListener('beforeinstallprompt', (e) => {
+		  // Prevent the mini-infobar from appearing on mobile
+		  e.preventDefault();
+		  // Stash the event so it can be triggered later.
+		  App.InstallPrompt = e;
+		 
+		});
+		
+	}else{
+		
+		App.Installable = false;
+		
+	}	
+		
+	//NOTIFICATION
+	if ('Notification' in window){
+		//SUPPORTS NOTIFICATION
+		App.PushSupport = true;
+		App.PushStatus	= Notification.permission;	
+		
+		
+		//MOVED AUTORUN INTO APP TO PREVENT RUNNING BEFORE DEVICE IS REGISTERED
+		
+	}else{
+		//DOES NOT SUPPORT NOTIFICATION
+		App.PushSupport = false;
+		App.PushStatusBar(); //UPDATE STATUS BAR
+	}
+		
+	//LOCATION
+	Location.Init();
+		
+		
+	App.Init(); //INT APP	
+		
+	</script>		
+	
+	
+</body>
 </html>
