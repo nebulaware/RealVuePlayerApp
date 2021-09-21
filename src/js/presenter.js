@@ -43,9 +43,7 @@ function PresenterManager (){
 						
 						
 					}
-				
-					
-					
+									
 				}
 
 		}

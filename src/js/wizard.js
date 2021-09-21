@@ -89,10 +89,19 @@ function WizardClass(){
 			Body += '</div>';
 			Body += '<div class="right">';
 			Body += '<h1>Welcome to the RealVue Player</h1>';
-			Body += '<h3 style="margin-bottom:80px;">This setup wizard is going to help you get your display setup.</h3>';
 			
+			
+			if (App.NetCon)	{
 				
-			Body += '<button class="btn" id="btn_register" onclick="Wizard.RegisterDisplay()">NEXT</button>';
+				Body += '<h3 style="margin-bottom:80px;">This setup wizard is going to help you get your display setup.</h3>';
+				Body += '<button class="btn" id="btn_register" onclick="Wizard.RegisterDisplay()">NEXT</button>';
+			
+			}else{
+
+				Body += '<h3 style="margin-bottom:80px;">No network connection detected. Close player and connect to a network.</h3>';
+				Body += '<button class="btn" id="btn_register" onclick="App.CloseApp()">CLOSE</button>';
+			}
+
 			Body += '</div>';
 			Body += '</div>';
 		

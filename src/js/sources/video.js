@@ -1,3 +1,4 @@
+
 function VideoManager (){
 		this.Param = {
 		"app" : "video",
@@ -24,15 +25,23 @@ function VideoManager (){
 		
 	}
 	
-	
 	this.Run = function Run(data,blob){
+		
+		var Path	= data;
+		var File	= this.GetFile(Path);
+
+		console.log('Here',Path);
+		Downloader.Download('video',Path);
+	}
+
+	this.Play = function Play(data,blob){
 		
 		var Path	= data;
 		var File	= this.GetFile(Path);
 		var Ext		= File.ext;
 		var PID		= Presenter.CurrentPID; //GET CURRENT PRESENTATION ID
 
-		//console.log('PLAYER LOADING',Path,blob,File,PID);
+		console.log('PLAYER LOADING',Path,blob,File,PID);
 		
 		
 		if(File.ext == 'invalid'){
@@ -150,6 +159,32 @@ function VideoManager (){
 		
 		
 	}
+	this.Completed = function Completed (data){
+
+		console.log('Completed Video',data);
+		
+		this.Play(data.filePath)
+
+	}
+
+	this.Progress = function Progress (data){
+
+		var Message = 'Downloaded: ' + data.downloaded + ' @ ' + data.speed;
+
+		console.log(data);
+
+		var Body =  '<div class="standby">';
+		Body += '<img src="images/logo.svg">';
+		Body += '<h1>Downloading</h1>';
+		Body += '<h3>Please wait while we download your video</h3>';	
+		Body += '<p>' + Message + '</p>';	
+		Body += '</div>';	
+		
+		
+		_("viewer").innerHTML = Body;			
+
+	}
+
 }
 
 var Video = new VideoManager();

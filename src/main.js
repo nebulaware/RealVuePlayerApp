@@ -5,6 +5,8 @@ const { app, ipcMain, BrowserWindow } = require('electron')
 const url  = require('url')
 const path = require('path')
 
+let mainWindow
+
 //Download Manager
 const DownloadManager = require("electron-download-manager");
 DownloadManager.register({
@@ -14,7 +16,7 @@ DownloadManager.register({
 
 function createWindow () {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     frame: false,
@@ -29,16 +31,7 @@ function createWindow () {
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
-  DownloadManager.download({
-    url: "https://i.imgur.com/H124sSq.jpg"
-}, function (error, info) {
-    if (error) {
-        console.log(error);
-        return;
-    }
 
-    console.log("DONE: " + info.url);
-});
 
 
 
@@ -68,6 +61,38 @@ app.on('window-all-closed', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+ipcMain.on('download-single', (event, arg) => {
+
+  console.log(arg);
+  let media_url = arg;
+
+  DownloadManager.download({
+      url: media_url,
+      onProgress: onProgress
+  }, function (error, info) {
+      if (error) {
+          console.log(error);
+          event.reply('download-error', error)
+          return;
+      }
+
+      //Download Completed
+      event.reply('download-completed', info)
+      
+  });
+
+ 
+  
+});
+
+function onProgress (progress){
+  console.log(progress)
+  mainWindow.webContents.send('download-progress',progress);
+}
+
+ipcMain.on('download-bulk', (event, arg) => {
+
+});
 
 
 ipcMain.on('asynchronous-message', (event, arg) => {
@@ -78,4 +103,9 @@ ipcMain.on('asynchronous-message', (event, arg) => {
 ipcMain.on('synchronous-message', (event, arg) => {
   console.log(arg) // prints "ping"
   event.returnValue = 'pong'
+})
+
+// Close Application
+ipcMain.on('close-me', (evt, arg) => {
+  app.quit()
 })

@@ -740,7 +740,7 @@ function DisplayClass(){
 	this.PollCheck = function PollCheck (){
 		
 		//NOW INSTANT WILL POLL EVERY 120 minutes - 7/17/2020
-		var Limit = ((App.Display.method == 'long')? 21 : 121);
+		var Limit = ((App.Display.method == 'long')? 15 : 15);
 		
 		//USED FOR LONG POLLING
 		if(this.PollMinute == Limit){
@@ -750,12 +750,7 @@ function DisplayClass(){
 			this.PollMinute++;
 		}
 		
-		
-		//FIREBASE - REALTIME - PROBABLY GOING TO MOVE FUNCTION HERE
-		if(App.FirebaseOn){
-			Fire.UpdateDisplay();
-		}
-		
+
 		
 		
 	}
@@ -1040,6 +1035,37 @@ function DisplayClass(){
 		
 		
 		
+	}
+
+	this.OptionsSidebar = function OptionsSidebar (){
+
+		//TOGGLE SIDEBAR
+		if(this.Sidebar == '' || this.Sidebar != 'status'){
+			this.DisplaySidebar('status');
+		}else{
+			this.DisplaySidebar('close');
+		}
+		
+		var ChannelName 	= ((this.ChannelData.name)? this.ChannelData.name : 'Not Set');
+		var SubName 		= ((this.ChannelData.subname)? '<p><strong>Subchannel:</strong> ' + this.ChannelData.subname + '</p>' : '');
+		var Method 			= '';
+		
+
+		
+		var Body;
+		
+		Body = '<h3>Settings</h3>';
+		Body += '<button class="" onclick="App.CloseApp();"><i class="far fa-times-circle"></i> Close Application</button>';
+		
+
+		
+		
+		_("sidebar_title").innerHTML = '<i class="fas fa-cog"></i> Settings';
+		this.SidebarContent(Body);		
+
+
+
+
 	}
 }
 

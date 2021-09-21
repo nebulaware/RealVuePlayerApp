@@ -14,6 +14,7 @@ function ApplicationManager(){
 	
 	this.Display		= {'code':'','token':'','channel':0,'otc':0,'run':'','method':'','pushtoken':'','location':''};
 	this.Channels		= {}; //CHANNELS STORED ON THIS DEVICE
+	this.Files			= {}; //FILES STORED IN MEDIA
 
 	this.Key			= 'e38e64ecdd5df53cbad321651137cd4791606c3e8347403e3ee710d31f113d21'; //PUBLIC KEY
 	this.Components 	= [];
@@ -33,7 +34,7 @@ function ApplicationManager(){
 	this.FirebaseOn		= false;
 	
 	// *** PWA *** //
-	this.RunMode		= 'browser'; //RUN MODE: Browser / Installed / Legacy
+	this.RunMode		= 'app'; //RUN MODE: Browser / Installed / Legacy
 	this.Installable	= false; //Whether the app is installable
 	this.InstallPrompt	= '';
 	
@@ -47,7 +48,7 @@ function ApplicationManager(){
 	
 	
 	// *** APP STATES *** //
-	this.Debug 			= false;
+	this.Debug 			= true;
 	this.IsFullScreen	= false;
 	this.NetCon			= true; //NETWORK CONNECTION
 	
@@ -236,6 +237,8 @@ function ApplicationManager(){
 			Storage.set('display',JSON.stringify(App.Display));	
 		}else if( field === 'channels'){
 			Storage.set('channels',JSON.stringify(App.Channels));
+		}else if( field === 'files'){
+			Storage.set('files',JSON.stringify(App.Channels));
 		}
 		
 		
@@ -295,7 +298,11 @@ function ApplicationManager(){
 			console.log('A reload was requested but the app is set not to allow.')
 		}
 	}
-	
+	this.CloseApp = function CloseApp (){
+
+		ipcRenderer.send('close-me');
+
+	}
 	this.DumpData = function DumpData(){
 		
 		App.Log('Dumping Data');
@@ -339,44 +346,13 @@ function ApplicationManager(){
 	
 	this.GetRunMode	= function GetRunMode(){
 		
-		
-		if(this.RunMode == 'legacy'){
-			return false;
-		}
-		
-		if (navigator.standalone) {
-			//INSTALLED
-			//console.log('Launched: Installed (iOS)');
-			this.RunMode = 'installed';
-		} else if (matchMedia('(display-mode: standalone)').matches) {
-			//INSTALLED
-			//console.log('Launched: Installed');
-			this.RunMode = 'installed';
-		} else {
-			//console.log('Launched: Browser Tab');
-			this.RunMode = 'browser';
-		}		
+		//NOT SUPPORTED FOR APPLICATION		
+	
 		
 	}
 	
 	this.InstallApp	= function InstallApp(){
 		
-	  // Hide the app provided install promotion
-	 // hideMyInstallPromotion();
-	  // Show the install prompt
-	  App.InstallPrompt.prompt();
-	  // Wait for the user to respond to the prompt
-	  App.InstallPrompt.userChoice.then((choiceResult) => {
-		if (choiceResult.outcome === 'accepted') {
-			Display.UpdateDisplay({'field':'run','value':'installed'});	
-			console.log('User accepted the install prompt');
-			
-		} else {
-			//Don't do anything in case the user accidently dismissed it.		
-			console.log('User dismissed the install prompt');
-			
-		}
-	  })		
 
 		
 	}

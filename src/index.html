@@ -3,14 +3,6 @@
 <head>
 <meta charset="utf-8">
 	
-	<!-- Web player tracking -->
-	<script>
-	  window.dataLayer = window.dataLayer || [];
-	  function gtag(){dataLayer.push(arguments);}
-	  gtag('js', new Date());
-
-	  gtag('config', 'UA-161408737-2');
-	</script>	
 	
 	<title>RealVue Player</title>
 
@@ -28,10 +20,10 @@
 	<meta name="apple-mobile-web-app-title" content="RealVue Player">
 	
 	
-	<link rel="stylesheet" href="css/font-awesome.min.css?v=21029" type="text/css" />
-	<link rel="stylesheet" href="css/plugins/video.css?v=21029" type="text/css" />
+	<link rel="stylesheet" href="css/font-awesome.min.css?" type="text/css" />
+	<link rel="stylesheet" href="css/plugins/video.css?" type="text/css" />
 	
-	<link href="css/style.css?v=21029" rel="stylesheet">	
+	<link href="css/style.css?" rel="stylesheet">	
 	
 </head>
 
@@ -57,11 +49,12 @@
 		
 		<div id="tools">
 
-
+			
 			<button id="btn_reload" onclick="App.Reload();"><i class="fas fa-sync"></i> Reload</button>
 			<button id="btn_channel" onclick="Display.ChannelSidebar('load');"><i class="fas fa-broadcast-tower"></i> Channels</button>
 			<button id="btn_schedule" onclick="Display.ScheduleSidebar();"><i class="fas fa-calendar-alt"></i> Schedule</button>
 			<button id="btn_status" onclick="Display.StatusSidebar();"><i class="fas fa-tv"></i> Display Status</button>
+			<button id="btn_reload" onclick="Display.OptionsSidebar();"><i class="fas fa-cog"></i> Settings</button>
 			
 			<div class="system_status">
 				<div class="currenttime"><span id="ctime">00:00</span><span id="cdate">00-00-0000</span></div>
@@ -76,45 +69,39 @@
 
 <!-- You can also require other files to run in this process -->
 <!-- <script src="./renderer.js"></script>	-->
-<script src="js/functions.js?v=21029"></script>	
-<script src="js/app.js?v=21029"></script>
-<script src="js/display.js?v=21029"></script>
-<script src="js/wizard.js?v=21029"></script>	
-<script src="js/presenter.js?v=21029"></script>
+<script src="js/functions.js?"></script>	
+<script src="js/app.js?"></script>
+<script src="js/display.js?"></script>
+<script src="js/wizard.js?"></script>	
+<script src="js/presenter.js?"></script>
+<script src="js/downloader.js"></script>
 	
 <!-- LOAD SOURCES -->
-<script src="js/sources/idx.js?v=21029"></script>	
-<script src="js/sources/image.js?v=21029"></script>	
-<script src="js/sources/video.js?v=21029"></script>	
-<script src="js/sources/playlist.js?v=21029"></script>	
-<script src="js/sources/slider.js?v=21029"></script>	
-<script src="js/sources/youtube.js?v=21029"></script>	
-<script src="js/sources/vimeo.js?v=21029"></script>	
-<script src="js/sources/website.js?v=21029"></script>	
-<script src="js/sources/stream.js?v=21029"></script>
+<script src="js/sources/idx.js?"></script>	
+<script src="js/sources/image.js?"></script>	
+<script src="js/sources/video.js?"></script>	
+<script src="js/sources/playlist.js?"></script>	
+<script src="js/sources/slider.js?"></script>	
+<script src="js/sources/youtube.js?"></script>	
+<script src="js/sources/vimeo.js?"></script>	
+<script src="js/sources/website.js?"></script>	
+<script src="js/sources/stream.js?"></script>
 
 <!-- LOAD PLUGINS -->	
-<script src="js/plugins/video.min.js?v=21029"></script>
-<script src="js/plugins/scroll.min.js?v=21029"></script>
+<script src="js/plugins/video.min.js?"></script>
+<script src="js/plugins/scroll.min.js?"></script>
 
 <!-- LOAD EXTERNAL RESOURCES -->
 <script src="https://player.vimeo.com/api/player.js"></script>
 	
-<!-- FIREBASE -->
-<!-- The core Firebase JS SDK is always required and must be listed first -->
-<script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-app.js"></script>
 
-<!-- TODO: Add SDKs for Firebase products that you want to use
-	 https://firebase.google.com/docs/web/setup#available-libraries -->
-<script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-analytics.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-messaging.js"></script>	
-<script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-firestore.js"></script>
-	<script>
+
+<script>
  	
 	const electron = require('electron');
 	const ipcRenderer = electron.ipcRenderer;
 	const fs = require('fs')
-
+	
 	ipcRenderer.on('hello', (event,data) => {
 		toast.info('Hello From Main Process');
 	});
@@ -126,26 +113,28 @@
 	})
 	ipcRenderer.send('asynchronous-message', 'ping')
 
+	//Downloader
+	ipcRenderer.on('download-completed', (event, arg) => {
+		Downloader.Completed (arg);
+	})
+
+	ipcRenderer.on('download-progress', (event, arg) => {
+		Downloader.Progress (arg);
+	})
+	
+	ipcRenderer.on('download-error', (event, error) => {
+		console.log(error);
+		toast.error(error);
+	})
 
 
 
 
 
-
-	//LOADED ASSURANCE
-	setTimeout(function(){
-		
-		if(!App.AppInitStart){
-			toast.error('App appears to ran into an issue. Attempting to resolve');
-			App.Init();
-			
-		}
-		
-	},5000);
 	
 		
 
-		
+ /* CURRENTLY UNSUPPORTED		
 		
 	//NEED TO MOVE THIS CLASS	
 	function NotifyClass (){
@@ -154,9 +143,6 @@
 		this.messaging;
 		
 
-		
-		
-		
 		
 		this.Init = function Init(){
 			
@@ -310,10 +296,10 @@
 	//INITIALIZE FIREBASE
 	Fire.Init();		
 		
-		
+	*/	
 		
 	//** FIREBASE FUNCTIONS - WILL MOVE TO ANOTHER LOCATION**//	
-	
+	/*
 	function showToken (msg,error){
 		
 		toast.error(msg);
@@ -335,50 +321,11 @@
 		
 	}	
 		
-		
+	*/	
 
-		
-	//REGISTER SERVICE WORKER
-	if ('serviceWorker' in navigator) {
-		window.addEventListener('load', function() {
-		  navigator.serviceWorker.register('sw.js');
-		});
-	}
 
 	
-	//SEE IF APP IS INSTALLABLE VIA PWD
-	if('onbeforeinstallprompt' in window){
-		
-		App.Installable = true;
-		
-		window.addEventListener('beforeinstallprompt', (e) => {
-		  // Prevent the mini-infobar from appearing on mobile
-		  e.preventDefault();
-		  // Stash the event so it can be triggered later.
-		  App.InstallPrompt = e;
-		 
-		});
-		
-	}else{
-		
-		App.Installable = false;
-		
-	}	
-		
-	//NOTIFICATION
-	if ('Notification' in window){
-		//SUPPORTS NOTIFICATION
-		App.PushSupport = true;
-		App.PushStatus	= Notification.permission;	
-		
-		
-		//MOVED AUTORUN INTO APP TO PREVENT RUNNING BEFORE DEVICE IS REGISTERED
-		
-	}else{
-		//DOES NOT SUPPORT NOTIFICATION
-		App.PushSupport = false;
-		App.PushStatusBar(); //UPDATE STATUS BAR
-	}
+
 		
 	//LOCATION
 	Location.Init();

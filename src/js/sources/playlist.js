@@ -34,6 +34,12 @@ function PlaylistManager (){
 		}
 		
 		this.PlaylistCount = this.List.length;
+		
+		
+		this.PreloadCount = 0; //RESET
+		
+
+		this.Error('Downloading Content','Downloading playlist, please wait... 0 / ' + this.PlaylistCount) ;
 		this.Prefetch();
 		
 		//this.NextItem();
@@ -43,54 +49,48 @@ function PlaylistManager (){
 	this.Prefetch = function Prefetch(){
 		
 		
-		this.Error('Downloading Content','Downloading playlist, please wait... 0 / ' + this.PlaylistCount) ;
-		
+		let File = this.List[this.PreloadCount].source;
 					
 		//PreloadContent()
-			
-//		Promise.all(Playlist.List.map(u =>  {
-//			fetch(u.source)
-//			})).then(responses =>
-//			Promise.all(responses.map(res => res.text()))
-//		).then(texts => {
-//			console.log(texts);
-//		});	
 		
-		console.log('Starting Promise');
+		console.log('This list is needed',this.List);
+
+		Downloader.Download('playlist',File);
+
 		
-		Promise.all(Playlist.List.map(url =>
-			
-			fetch(url.source)
-			.then(resp => resp.blob())
-			.then(blob => URL.createObjectURL(blob))
-			.then(source => {
-				url.blob = source;
-				console.log('Downloaded ',url);
-				Playlist.UpdateLoadCount();
-			
-			}).catch(e =>{
-			
-				Display.Log('ds-pl-preload', e.message);
-			
-			})
+		// console.log('Starting Promise');
 		
-		)).then(text => {
-			console.log('Finished Promise. Starting Videos');
-			Playlist.NextItem();
+		// Promise.all(Playlist.List.map(url =>
+			
+		// 	fetch(url.source)
+		// 	.then(resp => resp.blob())
+		// 	.then(blob => URL.createObjectURL(blob))
+		// 	.then(source => {
+		// 		url.blob = source;
+		// 		console.log('Downloaded ',url);
+		// 		Playlist.UpdateLoadCount();
+			
+		// 	}).catch(e =>{
+			
+		// 		Display.Log('ds-pl-preload', e.message);
+			
+		// 	})
 		
-		}).catch( e => {
+		// )).then(text => {
+		// 	console.log('Finished Promise. Starting Videos');
+		// 	Playlist.NextItem();
+		
+		// }).catch( e => {
 			
-			console.log('There was an issue with promises.');
-			toast.error('Issue loading some resources');
+		// 	console.log('There was an issue with promises.');
+		// 	toast.error('Issue loading some resources');
 			
-			Playlist.NextItem();
+		// 	Playlist.NextItem();
 			
-		});
+		// });
 		
 	
-//				console.log('Response:',resp);
-//				let blob = resp.blob();
-//				url.source = URL.createObjectURL(blob);		
+
 					
 					
 	}
@@ -102,13 +102,6 @@ function PlaylistManager (){
 		
 	}
 	
-	this.UpdateLoadCount = function UpdateLoadCount(){
-		
-		Playlist.PreloadCount++;
-		
-		this.Error('Downloading Content','Downloading playlist, please wait...' + Playlist.PreloadCount + ' / ' + Playlist.PlaylistCount);
-		
-	}
 	
 	this.NextItem = function NextItem(){
 		
@@ -131,9 +124,8 @@ function PlaylistManager (){
 
 			}else if(Item.type == 'video'){
 
-				console.log('Item:', Item);
-
-				Video.Init(Item.source,Item.blob);
+				
+				Video.Play(Item.source);
 				Timeout = Item.time * 1000;
 
 			}
@@ -180,6 +172,46 @@ function PlaylistManager (){
 
 		
 	}
+
+
+	this.Completed = function Completed (data){
+
+		let Count = this.PreloadCount + 1;		
+		//UPDATE LIST TO LOCAL FILE
+		this.List[this.PreloadCount].source = data.filePath;
+
+		if(Count == this.PlaylistCount){
+
+			Playlist.NextItem(); //Start Playlist
+
+		}else{
+
+			this.PreloadCount++; //Increase Count and load next list item
+			this.Prefetch();
+
+		}
+
+
+	}
+
+	this.Progress = function Progress (data){
+
+		var Message = 'Downloaded: ' + data.downloaded + ' @ ' + data.speed;
+		
+		//Do not add to preload count because last video will be finished
+
+		var Body =  '<div class="standby">';
+		Body += '<img src="images/logo.svg">';
+		Body += '<h1>Downloading</h1>';
+		Body += '<h3>Please wait while we download your content</h3>';	
+		Body += '<p>' + Playlist.PreloadCount + ' / ' + Playlist.PlaylistCount + '</p>';
+		Body += '<p>' + Message + '</p>';	
+		Body += '</div>';	
+		
+		
+		_("viewer").innerHTML = Body;			
+
+	}	
 	
 }
 
@@ -188,34 +220,4 @@ var Playlist = new PlaylistManager();
 Presenter.AddSource(Playlist);
 
 
-
-
-//PRELOADER
-function PreloadContent(){
-	
-	let Playlist = Playlist.List;
-	let Count	 = Playlist.length;
-	
-	var i;
-	
-	for  ( i = 0; i < Count; i++){
-		
-		PreloadDownload(Playlist.List[i].source);
-		
-	
-	
-}
-	
-	
-}
-
-async function PreloadDownload(url){
-	
-	console.log('Downloading source ' + url);
-	
-	let result = await fetch(url);
-	let blob = await result.blob();
-	
-	return URL.createObjectURL(blob);
-}
 
