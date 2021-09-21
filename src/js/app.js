@@ -560,6 +560,9 @@ function NetworkMonitor (){
 	
 	this.init = function init(){
 		
+		//SET INITIAL STATUS
+		App.NetCon = navigator.onLine;
+
 		window.addEventListener('online', function (e){
 			App.NetCon = true;
 			App.NetworkChanged('online',e);
@@ -571,7 +574,7 @@ function NetworkMonitor (){
 			
 		});
 		
-		App.Log('Starting Network Monitor');
+		App.Log('Starting Network Monitor: ' + ((App.NetCon)? 'online' : 'offline'));
 	}
 	
 	
