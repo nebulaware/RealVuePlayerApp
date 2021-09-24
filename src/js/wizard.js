@@ -1,7 +1,5 @@
 // JavaScript Document
 
-// JavaScript Document
-
 function WizardClass(){
 	this.Param = {
 		"app" : "wizard",
@@ -114,7 +112,8 @@ function WizardClass(){
 	
 	this.Step1 = function Step1 (){
 		
-				
+		//DEPRECATED: 9-22-21: 
+		
 		App.View = 'wizard';
 		Wizard.CurrentStep = 1;
 			
@@ -151,8 +150,9 @@ function WizardClass(){
 		Wizard.CurrentStep = 2;
 		
 		var PushSkip = false;
-			
 		
+		//Bypass
+		Display.UpdateDisplay({'field':'method','value':'long'});
 		
 		var Body =  '<div class="setup" style="max-width:600px;">';
 
@@ -218,7 +218,7 @@ function WizardClass(){
 			
 
 		
-			Body += '<button class="btn" onclick="Wizard.Step(3)" ' + ((PushSkip)? '' : 'disabled')+'>NEXT</button>';
+			//Body += '<button class="btn" onclick="Wizard.Step(3)" ' + ((PushSkip)? '' : 'disabled')+'>NEXT</button>';
 			
 			Body += '</div>';
 			Body += '</div>';

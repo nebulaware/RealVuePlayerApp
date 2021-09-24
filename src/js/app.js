@@ -4,6 +4,8 @@
 
 "use strict";
 
+const { fstat } = require("original-fs");
+
 //** MAIN APPLICATION **//
 function ApplicationManager(){
 	//APPLICATION DATA
@@ -29,7 +31,7 @@ function ApplicationManager(){
 	this.Communicating	= false;
 	
 	
-	this.PiPlayer 		= false;
+	this.PiPlayer 		= true;
 	
 	this.FirebaseOn		= false;
 	
@@ -79,6 +81,8 @@ function ApplicationManager(){
 		
 		this.UpdateResolution();
 		
+		//Initialize File Manager
+		FM.Init();
 		
 		//CHECK LOCAL STORAGE FOR SESSION
 		if(this.LoadDisplay()){
@@ -234,11 +238,17 @@ function ApplicationManager(){
 	this.Save = function Save (field){
 	
 		if(field === 'display'){
+			
 			Storage.set('display',JSON.stringify(App.Display));	
+
+		}else if( field === 'channel' ){
+
+			Storage.set('channel',JSON.stringify(Display.ChannelData));	
+		
 		}else if( field === 'channels'){
+
 			Storage.set('channels',JSON.stringify(App.Channels));
-		}else if( field === 'files'){
-			Storage.set('files',JSON.stringify(App.Channels));
+
 		}
 		
 		
@@ -287,7 +297,7 @@ function ApplicationManager(){
 		 }	
 		
 	}
-	
+
 	this.Reload = function Reload(){
 		
 		if(App.AllowRefresh){
@@ -307,7 +317,12 @@ function ApplicationManager(){
 		
 		App.Log('Dumping Data');
 		
+		FS.PurgeFiles();
+
 		Storage.remove('display');
+		Storage.remove('files');
+		Storage.remove('channel');
+	
 		
 		//Storage.remove('token');
 		//PAUSE

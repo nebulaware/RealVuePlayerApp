@@ -21,11 +21,12 @@ function WebsiteManager (){
 		
 		
 		
-		
-		
-		
 	}
 	
+	this.Preload = function Preload(data){
+		Display.Preload('next'); //Nothing to Preload	
+	}
+
 	this.RunFrame = function RunFrame(){
 		
 		if(!this.validateURL(this.Data)){

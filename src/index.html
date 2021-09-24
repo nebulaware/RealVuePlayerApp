@@ -75,6 +75,7 @@
 <script src="js/display.js?"></script>
 <script src="js/wizard.js?"></script>	
 <script src="js/presenter.js?"></script>
+<script src="js/filemanager.js"></script>
 <script src="js/downloader.js"></script>
 	
 <!-- LOAD SOURCES -->
@@ -101,13 +102,17 @@
  	
 	const electron = require('electron');
 	const ipcRenderer = electron.ipcRenderer;
+	const readline = require('readline');
+	const path = require('path');
 	const fs = require('fs')
 	
+
+
 	ipcRenderer.on('hello', (event,data) => {
 		toast.info('Hello From Main Process');
 	});
 
-	console.log(ipcRenderer.sendSync('synchronous-message', 'ping')) // prints "pong"
+	const DownloadPath = ipcRenderer.sendSync('get:download:path', '') // returns download path
 
 	ipcRenderer.on('asynchronous-reply', (event, arg) => {
 	console.log(arg) // prints "pong"

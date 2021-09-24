@@ -15,6 +15,10 @@ function StreamManager (){
 		
 	}
 	
+	this.Preload = function Preload(data){
+		Display.Preload('next'); //Nothing to Preload	
+	}	
+
 	this.Listener = function Listener(data,response){	
 		
 		

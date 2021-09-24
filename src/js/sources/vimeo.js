@@ -40,11 +40,12 @@ function VimeoManager (){
 	
 	this.Listener = function Listener(data,response){	
 		
+
 		
-		
-		
-		
-		
+	}
+
+	this.Preload = function Preload(data){
+		Display.Preload('next'); //Nothing to Preload	
 	}
 	
 	this.RunPlayer = function RunPlayer(videoid){

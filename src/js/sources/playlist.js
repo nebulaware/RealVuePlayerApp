@@ -22,7 +22,7 @@ function PlaylistManager (){
 		
 		this.Data = data;
 		
-		App.Log('PLAYLIST',data);
+		App.Log('STARTING PLAYLIST');
 		
 		this.TimeLimit  = data.timelimit;
 		this.List		= data.list;
@@ -34,67 +34,72 @@ function PlaylistManager (){
 		}
 		
 		this.PlaylistCount = this.List.length;
-		
-		
+				
 		this.PreloadCount = 0; //RESET
 		
 
 		this.Error('Downloading Content','Downloading playlist, please wait... 0 / ' + this.PlaylistCount) ;
-		this.Prefetch();
 		
-		//this.NextItem();
+		this.BuildList();
+		
+	
 		
 	}
 	
+	this.Preload = function Preload(data){
+
+		this.Data = data;
+		
+		App.Log('Preloading Playlist',data);
+		
+		this.TimeLimit  = data.timelimit;
+		this.List		= data.list;
+		
+		if(this.List.length == 0){
+			
+			Display.Preload('next'); //Nothing in list to load
+			return false;
+		}
+		
+		this.PlaylistCount = this.List.length;
+			
+		this.PreloadCount = 0; //RESET
+
+		this.Prefetch(); //Start prefetching playlist items
+
+	}
+
+
 	this.Prefetch = function Prefetch(){
 		
 		
-		let File = this.List[this.PreloadCount].source;
-					
-		//PreloadContent()
-		
-		console.log('This list is needed',this.List);
+		let File = this.List[this.PreloadCount].source;			
 
 		Downloader.Download('playlist',File);
-
-		
-		// console.log('Starting Promise');
-		
-		// Promise.all(Playlist.List.map(url =>
-			
-		// 	fetch(url.source)
-		// 	.then(resp => resp.blob())
-		// 	.then(blob => URL.createObjectURL(blob))
-		// 	.then(source => {
-		// 		url.blob = source;
-		// 		console.log('Downloaded ',url);
-		// 		Playlist.UpdateLoadCount();
-			
-		// 	}).catch(e =>{
-			
-		// 		Display.Log('ds-pl-preload', e.message);
-			
-		// 	})
-		
-		// )).then(text => {
-		// 	console.log('Finished Promise. Starting Videos');
-		// 	Playlist.NextItem();
-		
-		// }).catch( e => {
-			
-		// 	console.log('There was an issue with promises.');
-		// 	toast.error('Issue loading some resources');
-			
-		// 	Playlist.NextItem();
-			
-		// });
-		
-	
-
-					
+				
 					
 	}
 	
+	this.BuildList = function BuildList(){
+
+		
+
+		for (i=0; i < this.PlaylistCount; i++){
+
+			//Modify the playlist with local path
+			let remote = this.List[i].source;
+			this.List[i].source = FM.GetLocal(remote);
+			console.log(this.List[i].source);
+		}
+			
+		
+		
+		Playlist.NextItem(); //Start Playlist
+
+
+	}
+
+
 	this.StartList = function StartList(){
 		
 		
@@ -120,7 +125,7 @@ function PlaylistManager (){
 			
 			if(Item.type == 'image'){
 
-				Image.Init(Item.source);
+				Image.Play(Item.source);
 
 			}else if(Item.type == 'video'){
 
@@ -168,21 +173,17 @@ function PlaylistManager (){
 	
 		
 		_("viewer").innerHTML = Body;	
-		
-
-		
+				
 	}
 
 
 	this.Completed = function Completed (data){
 
 		let Count = this.PreloadCount + 1;		
-		//UPDATE LIST TO LOCAL FILE
-		this.List[this.PreloadCount].source = data.filePath;
 
 		if(Count == this.PlaylistCount){
 
-			Playlist.NextItem(); //Start Playlist
+			Display.Preload('next');
 
 		}else{
 

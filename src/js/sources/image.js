@@ -23,17 +23,56 @@ function ImageManager (){
 			
 		
 	}
-	
-	
-	this.Run = function Run(data){
+
+	this.Preload = function Preload(data){
 		
+		//CALLED FOR PRELOADING RESOURCES
+		var Path	= data;
+		Downloader.Download('image',Path);
+
+	}
+	this.Run = function Run (data){
+
+		this.Play(FM.GetLocal(data));
+
+	}
+
+
+	this.Play = function Play(source){
 		
-		var Body = '<img src="' + data +'" style="width:100%;height:100%;">';
+		//** DATA IS LOCAL PATH */
+		var Body = '<img src="' + source +'" style="width:100%;height:100%;">';
 		
 		_("viewer").innerHTML = Body;
 		
 	}
+
 	
+	this.Completed = function Completed (data){
+
+		//Done downloading file - Next Step
+		Display.Preload('next');
+	
+
+	}
+
+	this.Progress = function Progress (data){
+
+		var Message = 'Downloaded: ' + data.downloaded + ' @ ' + data.speed;
+
+		
+		var Body =  '<div class="standby">';
+		Body += '<img src="images/logo.svg">';
+		Body += '<h1>Downloading</h1>';
+		Body += '<h3>Please wait while we download your image</h3>';	
+		Body += '<p>' + Message + '</p>';	
+		Body += '</div>';	
+		
+		
+		_("viewer").innerHTML = Body;			
+
+	}
+
 }
 
 var Image = new ImageManager();

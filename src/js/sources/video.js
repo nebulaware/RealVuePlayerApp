@@ -25,34 +25,40 @@ function VideoManager (){
 		
 	}
 	
-	this.Run = function Run(data,blob){
+	this.Preload = function Preload(data){
 		
+		//CALLED FOR PRELOADING RESOURCES
 		var Path	= data;
 		var File	= this.GetFile(Path);
-
-		console.log('Here',Path);
+	
 		Downloader.Download('video',Path);
+
 	}
 
-	this.Play = function Play(data,blob){
+
+	this.Run = function Run(data){
+		
+		var Path	= data;
+		var local	= FM.GetLocal(data)
+
+		this.Play (local)
+	
+	}
+
+	this.Play = function Play(data){
 		
 		var Path	= data;
 		var File	= this.GetFile(Path);
 		var Ext		= File.ext;
 		var PID		= Presenter.CurrentPID; //GET CURRENT PRESENTATION ID
 
-		console.log('PLAYER LOADING',Path,blob,File,PID);
-		
-		
+
 		if(File.ext == 'invalid'){
 			this.PlayError('invalid_extension');
 		}
 		
 
-		//PLAYING FROM BLOB
-		if(blob){
-			Path = blob;
-		}
+	
 		
 		
 		if(this.HasPlayer){
@@ -159,11 +165,12 @@ function VideoManager (){
 		
 		
 	}
+
 	this.Completed = function Completed (data){
 
-		console.log('Completed Video',data);
-		
-		this.Play(data.filePath)
+		//Done downloading file - Next Step
+		Display.Preload('next');
+	
 
 	}
 
@@ -171,8 +178,7 @@ function VideoManager (){
 
 		var Message = 'Downloaded: ' + data.downloaded + ' @ ' + data.speed;
 
-		console.log(data);
-
+		
 		var Body =  '<div class="standby">';
 		Body += '<img src="images/logo.svg">';
 		Body += '<h1>Downloading</h1>';

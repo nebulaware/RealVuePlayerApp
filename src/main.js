@@ -5,6 +5,7 @@ const { app, ipcMain, BrowserWindow } = require('electron')
 const url  = require('url')
 const path = require('path')
 
+
 let mainWindow
 
 //Download Manager
@@ -63,7 +64,7 @@ app.on('window-all-closed', function () {
 // code. You can also put them in separate files and require them here.
 ipcMain.on('download-single', (event, arg) => {
 
-  console.log(arg);
+
   let media_url = arg;
 
   DownloadManager.download({
@@ -86,7 +87,7 @@ ipcMain.on('download-single', (event, arg) => {
 });
 
 function onProgress (progress){
-  console.log(progress)
+
   mainWindow.webContents.send('download-progress',progress);
 }
 
@@ -94,14 +95,17 @@ ipcMain.on('download-bulk', (event, arg) => {
 
 });
 
+ipcMain.on('get:download:path', (event, arg) => {
+  event.returnValue = app.getPath("downloads") + "/realvuemedia";
+});
 
 ipcMain.on('asynchronous-message', (event, arg) => {
-  console.log(arg) // prints "ping"
+ // console.log(arg) // prints "ping"
   event.reply('asynchronous-reply', 'pong')
 })
 
 ipcMain.on('synchronous-message', (event, arg) => {
-  console.log(arg) // prints "ping"
+  //console.log(arg) // prints "ping"
   event.returnValue = 'pong'
 })
 

@@ -58,14 +58,27 @@ function PresenterManager (){
 		
 		//** TO DO - See if source exists if not actually load it to the dom.
 		
-		
-		
+				
 		this.Sources[Source].Init(Data);
 		
 		_("viewer").classList.add('presenting');
 		
 		Cursor.Init();
 		
+	}
+
+	this.Preload = function Preload(pid){
+		
+		//Preload Presentation
+		App.Log('Preloading Presentation:' + pid);
+		
+		this.PresentationData = Display.Presentations[pid];
+
+		var Source	= this.PresentationData.data.source;
+		var Data 	= this.PresentationData.data.data;
+
+		this.Sources[Source].Preload(Data);
+
 	}
 	
 	this.AddSource = function AddSource (source){

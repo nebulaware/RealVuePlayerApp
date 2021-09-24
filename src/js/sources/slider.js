@@ -16,7 +16,11 @@ function SliderManager (){
 		this.Run();
 		
 	}
-	
+
+	this.Preload = function Preload(data){
+		Display.Preload('next'); //Nothing to Preload	
+	}
+		
 	this.Run = function Run (){
 		
 		var Vanity 	= Display.ChannelData.vanity;

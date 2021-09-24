@@ -1,3 +1,5 @@
+const ytdl = require("ytdl-core");
+
 function YoutubeManager (){
 		this.Param = {
 		"app" : "youtube",
@@ -19,7 +21,8 @@ function YoutubeManager (){
 		
 		this.Data = data;
 		
-		this.RunAPI(data);
+		this.RunPlayer(data);
+		//this.RunAPI(data);
 		//this.RunPlayer(data); //DATA SHOULD BE VIDEO ID
 		
 	}
@@ -33,15 +36,76 @@ function YoutubeManager (){
 		
 	}
 	
-	this.RunPlayer = function RunPlayer(videoid){
+	this.RunPlayer = function RunPlayer(data){
 		
-		Body = '<iframe id="ytplayer" type="text/html" width="100%" height="100%" src="https://www.youtube.com/embed/' + videoid + '?autoplay=1&controls=1&mute=1&loop=1&playsinline=1&modestbranding=1&playlist=' + videoid + '&iv_load_policy=3" frameborder="0" allowfullscreen></iframe>';
-		
-		
-		_("viewer").innerHTML = Body;
+		var local	= FM.GetLocal('https://www.youtube.com/watch?v=' + data)
+
+		Video.Play (local)
 		
 	}
 	
+	this.Preload = function Preload(data){
+
+
+		const url = 'https://www.youtube.com/watch?v=' + data;
+		const output = DownloadPath + '/' + data +'.mp4';
+		
+        let File = FM.CheckForFile(url);
+
+        Downloader.ActiveFile(url); //Log this file is actively used
+
+        if(File){
+            //File Exists
+            Display.Preload('next');
+			return;
+
+        }
+
+		
+
+		const video = ytdl(url);
+		let starttime;
+		video.pipe(fs.createWriteStream(output));
+		video.once('response', () => {
+		  starttime = Date.now();
+
+		  var Body =  '<div class="standby">';
+		  Body += '<img src="images/logo.svg">';
+		  Body += '<h1>Downloading</h1>';
+		  Body += '<h3>Please wait while we download your video</h3>';	
+		  Body += '<p><span id="yt-percent"></span><br><span id="yt-downloaded"><br></span><span id="yt-running"></span><span id="yt-eta"></span></p>';	
+		  Body += '</div>';	
+		  
+		  
+		  _("viewer").innerHTML = Body;	
+	  
+	  
+		  
+		  
+		  _("viewer").innerHTML = Body;
+		});
+
+		video.on('progress', (chunkLength, downloaded, total) => {
+		  const percent = downloaded / total;
+		  const downloadedMinutes = (Date.now() - starttime) / 1000 / 60;
+		  const estimatedDownloadTime = (downloadedMinutes / percent) - downloadedMinutes;
+		  //readline.cursorTo(process.stdout, 0);
+		  _('yt-percent').innerHTML = `${(percent * 100).toFixed(2)}% downloaded `;
+		 // _('yt-downloaded').innerHTML = `(${(downloaded / 1024 / 1024).toFixed(2)}MB of ${(total / 1024 / 1024).toFixed(2)}MB)\n`;
+		  _('yt-running').innerHTML = `running for: ${downloadedMinutes.toFixed(2)} minutes`;
+		  _('yt-eta').innerHTML = `, estimated: ${estimatedDownloadTime.toFixed(2)} minutes `;
+		  //readline.moveCursor(process.stdout, 0, -1);
+		});
+		
+		video.on('end', () => {
+		  
+			FM.AddToList(url,output);
+			Display.Preload('next');	
+			//process.stdout.write('\n\n');
+		});
+	}
+
+
 	this.RunAPI = function RunAPI (data){
 		
 		//console.log('Running Youtube API');

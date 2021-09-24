@@ -2,6 +2,8 @@
 
 "use strict";
 
+const { DownloadItem } = require("electron");
+
 function DisplayClass(){
 	this.Param = {
 		"app" : "display",
@@ -9,9 +11,9 @@ function DisplayClass(){
 		"data" : ""
 	}	
 	
-	this.PingRate 	= 1; //0 = 30 seconds, 1 = 5 minutes, 2 = 1 hour, 3 = 8 hours, 4 = 24 hours 
-	this.Sidebar	= '';
-	
+	this.PingRate 			= 1; //0 = 30 seconds, 1 = 5 minutes, 2 = 1 hour, 3 = 8 hours, 4 = 24 hours 
+	this.Sidebar			= '';
+	this.PreviousSession	= false;
 	//LONG POLLING
 	this.PollMinute = 0;
 	
@@ -33,7 +35,13 @@ function DisplayClass(){
 	this.Presentations	= {};
 	this.PresentationKeys;
 	
+	
 	this.CurrentPresentation = 0;
+
+	//PRELOADING AND MANAGING SCHEDULE
+	this.PreloadCount			= 0;
+	this.PreloadCurrent			= 0;
+	this.ScheduledPresentations = []; //PRESENTATIONS THAT ARE SCHEDULED
 	
 	this.SidebarScroll	= '';
 	
@@ -139,11 +147,7 @@ function DisplayClass(){
 			
 		}else if( data.action == 'loadchannel' || data.action == 'changechannel'){
 			
-			App.Preloader(); //TURN OFF PRELOADER
-			
-			App.View = 'Viewer';
-			
-			_("maindisplay").classList.remove('wizard');
+
 			
 			if(response.status == 'channel_error'){
 				//NO ACTIVE CHANNEL - SHOULDNT HAPPEN
@@ -151,19 +155,15 @@ function DisplayClass(){
 				
 			}else if(response.status == 'success'){
 				
-				//STORE CHANNEL DATA
-				this.ChannelData = response.data;
+				//LOAD IN NEW DATA
+				App.Display.channel = response.data.id;
+				Display.ChannelData = response.data;
 				
-				//ADD CHANNEL PULLED INTO DISPLAY
-				App.Display.channel = this.ChannelData.id;
-				
+				//SAVE DATA
 				App.Save('display');
-				
-				Display.DisplaySidebar('close');
-				
-				Display.ScheduleReady = false;
-				
-				Display.ProcessChannel();
+				App.Save('channel'); 
+
+				Display.ProcessData();
 				
 			}
 						
@@ -259,13 +259,24 @@ function DisplayClass(){
 	}
 	
 	this.LoadDisplay = function LoadDisplay(){
+
+		if(App.NetCon){
+
+			//Load Display Data	
+			Display.Param.action = 'loaddisplay';
+			Display.Param.data = {};
+			
+			App.Send(Display.Param);
 		
-		
-		//PAIR DISPLAY	
-		Display.Param.action = 'loaddisplay';
-		Display.Param.data = {};
-		
-		App.Send(Display.Param);			
+		}else if(App.Display.channel == 0){
+
+			this.ChannelError('no_active_channel');
+
+		}else{
+
+			//No network connection to load display
+			Display.LoadChannel();
+		}
 	
 		
 	}
@@ -274,6 +285,11 @@ function DisplayClass(){
 		
 		//*** BECAUSE THIS IS BEING CALLED BY TIMER, WE CANT USE "THIS" STATEMENTS
 		
+		if(!App.NetCon){
+			//No internet no check in - Outage should automatically be reported upon restoration
+			return false;
+		}
+
 		//PINGS THE SYSTEM		
 		Display.Param.action = 'checkin';
 		Display.Param.data = {};
@@ -284,37 +300,98 @@ function DisplayClass(){
 	
 	this.LoadChannel = function LoadChannel(){
 		
-			
-		if(App.Display.otc != 0){
-			
-			//PAIRING MODE
-			Wizard.Pairing();
-			App.Preloader();				
-			
-		}else if(App.Display.channel != 0){
-			
-			Display.Param.action = 'loadchannel';
-			Display.Param.data = {};
-
-			App.Send(Display.Param);
-			
-		}else if( App.Display.channel == 0 && App.Display.otc == 0){
-			
-			console.warn('No Channel Assigned and no activation code.');
-			
-			Display.ChannelSidebar('load');
-			
-			
-		}else{
-			toast.error('We are not sure what happened when loading the channel','Unknown Error');
-			console.error('Display | No Load Channel Condition met');
-			
-		}
+		//LOAD CHANNEL DATA
+		var ChannelData = Storage.get('channel');
 		
+		if(ChannelData){
+		   
+			//Channel Data Found - Loading
+			this.ChannelData = JSON.parse(ChannelData);	   		
+			this.PreviousSession = true;
+
+			if(App.NetCon){
+				//If network connection download latest content and compare
+
+				Display.Param.action = 'loadchannel';
+				Display.Param.data = {};
+
+				App.Send(Display.Param);
+
+			}else{
+
+				Display.ProcessData();
+			}
+
+
+		 }else{	
+		 
+		 
+			if(App.Display.otc != 0){
+				
+				//PAIRING MODE
+				Wizard.Pairing();
+				App.Preloader();				
+				
+			}else if(App.Display.channel != 0){
+				
+				Display.Param.action = 'loadchannel';
+				Display.Param.data = {};
+
+				App.Send(Display.Param);
+				
+			}else if( App.Display.channel == 0 && App.Display.otc == 0){
+				
+				console.warn('No Channel Assigned and no activation code.');
+				
+				Display.ChannelSidebar('load');
+				
+				
+			}else{
+				toast.error('We are not sure what happened when loading the channel','Unknown Error');
+				console.error('Display | No Load Channel Condition met');
+				
+			}
+		
+		}
 		
 		
 	}
 	
+	this.ProcessData = function ProcessData(){
+
+		Display.ScheduleReady = false;
+		
+		Display.ShowDisplay();
+		Display.ProcessChannel();	
+
+
+	}
+
+	this.ShowDisplay = function ShowDisplay(){
+
+		App.Preloader(); //TURN OFF PRELOADER
+			
+		App.View = 'Viewer';
+		
+		_("maindisplay").classList.remove('wizard');
+
+		Display.DisplaySidebar('close');
+
+	}
+
+	this.CompareData = function CompareData(data){
+
+
+		let ChangesDetected = false;
+
+		
+
+
+
+	}
+
+	
+
 	this.ProcessChannel = function ProcessChannel(){
 		//PROCESS THE DATA AND READY IT FOR DISPLAY	
 		
@@ -328,6 +405,10 @@ function DisplayClass(){
 			return false;
 		}
 		
+
+		this.DisplayMessage('Please wait','We are loading the player','');
+
+
 		for (p = 0; p < PCount; p++){
 			
 			pid = Presentations[p].pid;
@@ -417,6 +498,11 @@ function DisplayClass(){
 						//ADD EVENT TO EACH TIME SLOT IT EXISTS IN	
 						this.Schedule[Days[d]][starttime.format('HH:mm')] = event.presentation;
 
+						//ADD TO SCHEDULED PRESENTATIONS
+						Display.ScheduledPresentations.indexOf(event.presentation) === -1 ? Display.ScheduledPresentations.push(event.presentation) : '';
+						
+				
+
 						//INCREMENT TIME
 						starttime.add(30,'minutes');
 
@@ -434,7 +520,10 @@ function DisplayClass(){
 					
 					//ADD EVENT TO EACH TIME SLOT IT EXISTS IN	
 					this.Schedule[day][starttime.format('HH:mm')] = event.presentation;
-		
+					
+					//ADD TO SCHEDULED PRESENTATIONS
+					Display.ScheduledPresentations.indexOf(event.presentation) === -1 ? Display.ScheduledPresentations.push(event.presentation) : '';
+
 					//INCREMENT TIME
 					starttime.add(30,'minutes');
 					
@@ -446,12 +535,48 @@ function DisplayClass(){
 			
 		}		
 		
-		Display.ScheduleReady = true; //LETS THE TICKER KNOW THE SCHEDULE IS READY
-		
-		this.DisplayChannel();
+		//Preload scheduled presentations
+		this.Preload('start');
+
 		
 	}
-	
+	this.Preload = function Preload(state){
+
+		if(state == 'start'){
+
+			this.DisplayMessage('Please wait','We are loading the player','Preloading Content');
+
+			this.PreloadCount = this.ScheduledPresentations.length;
+			this.PreloadCurrent = 0;
+
+			Presenter.Preload(this.ScheduledPresentations[this.PreloadCurrent]); //SEND PRESENTATION ID
+
+		}else if(state == 'next'){
+
+			let current = this.PreloadCurrent + 1;
+
+			if(current == this.PreloadCount){
+				
+				this.DisplayMessage('Please wait','We are loading the player','Cleaning old files');
+				//File Cleanup
+				Downloader.CleanUpFiles();
+				//Done preloading all presentations scheduled
+				Display.ScheduleReady = true; //LETS THE TICKER KNOW THE SCHEDULE IS READY
+			
+				this.DisplayChannel();
+
+			}else {
+
+				this.PreloadCurrent++; //Increase index
+
+				Presenter.Preload(this.ScheduledPresentations[this.PreloadCurrent]); //SEND PRESENTATION ID
+
+			}
+
+		}
+
+
+	}
 	
 	this.DisplayChannel = function DisplayChannel(){
 		
@@ -506,27 +631,7 @@ function DisplayClass(){
 		
 	}
 	
-	/* DEPRECATED
-	this.SyncTo = function SyncTo(mod){
-		//Minute of Day
-		var CurrentMOD = this.GetCurrentMOD();
-		var TimeLeft = ((mod - CurrentMOD) * 1000); //Find Difference and convert to milleseconds and Set timer
-		
-		//Start Ping Timer
-		this.SyncTimer = setInterval(App.Reload, TimeLeft);		
-	}
-	
-	this.GetCurrentMOD = function GetCurrentMOD(){
-		
-		var d = new Date();
-		var m = d.getMinutes();
-		var mh = (d.getHours() * 60);
-		
-		return m + mh;
-		
-	}
 
-	*/
 	
 	this.FullScreen = function FullScreen (action){
 		
@@ -1067,6 +1172,24 @@ function DisplayClass(){
 
 
 	}
+
+	this.DisplayMessage = function DisplayMessage (h,s,m){
+
+		App.Log (h + ' | ' + s + ' | ' + m);
+
+		var Body =  '<div class="standby">';
+			Body += '<img src="images/logo.svg">';
+			Body += '<h1>' + h + '</h1>';
+			Body += '<h3>' + s + '</h3>';	
+			Body += '<p>' + m + '</p>';	
+			Body += '</div>';	
+	
+		
+		_("viewer").innerHTML = Body;	
+
+
+	}
+
 }
 
 var Display = new DisplayClass();
