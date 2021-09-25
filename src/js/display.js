@@ -95,6 +95,9 @@ function DisplayClass(){
 			
 			//SAVE
 			App.Save('display');
+
+			//INITIALIZE REALTIME COMMUNICATION
+			RT.Init();
 			
 			if(App.View == 'wizard'){
 			
@@ -129,19 +132,14 @@ function DisplayClass(){
 				//IF WE ARE UPDATING IN WIZARD THERE ARE SETUPS TO FOLLOW
 				if(data.data.field == 'run'){
 					Wizard.Step(2); //INSTALLATION		
-				}else if (data.data.field == 'pushtoken' && Wizard.CurrentStep == 2 || data.data.field == 'method' && Wizard.CurrentStep == 2){
+				}else if (data.data.field == 'method' && Wizard.CurrentStep == 2){
 					
-					if(App.PiPlayer){
-						Wizard.Step(3);
-					}else{
-						Wizard.Step(2); //NOTIFICATION
-					}
+					Wizard.Step(3);
+	
 				}else if(data.data.field == 'location' && Wizard.CurrentStep == 3){
-					if(App.PiPlayer){
-						Wizard.Pairing()
-					}else{
-						Wizard.Step(3);	//LOCATION
-					}
+					
+					Wizard.Pairing()
+
 				}
 			}
 			
@@ -395,6 +393,8 @@ function DisplayClass(){
 	this.ProcessChannel = function ProcessChannel(){
 		//PROCESS THE DATA AND READY IT FOR DISPLAY	
 		
+		//console.warn(this.ChannelData,this.ChannelData.presentations);
+
 		var Presentations	= this.ChannelData.presentations;
 		var PCount			= Presentations.length;
 		var p,pid;
@@ -1145,8 +1145,8 @@ function DisplayClass(){
 	this.OptionsSidebar = function OptionsSidebar (){
 
 		//TOGGLE SIDEBAR
-		if(this.Sidebar == '' || this.Sidebar != 'status'){
-			this.DisplaySidebar('status');
+		if(this.Sidebar == '' || this.Sidebar != 'settings'){
+			this.DisplaySidebar('settings');
 		}else{
 			this.DisplaySidebar('close');
 		}
@@ -1160,7 +1160,36 @@ function DisplayClass(){
 		var Body;
 		
 		Body = '<h3>Settings</h3>';
-		Body += '<button class="" onclick="App.CloseApp();"><i class="far fa-times-circle"></i> Close Application</button>';
+		Body += '<button class="btn" onclick="App.PurgeFiles();"><i class="fas fa-trash"></i>Purge Files</button>';
+		Body += '<button class="btn" onclick="Display.ResetConfirm();"><i class="fas fa-redo-alt"></i> Reset Display</button>';
+		Body += '<button class="btn" onclick="App.CloseApp();" style="margin-top:32px;"><i class="far fa-times-circle" ></i> Close Application</button>';
+		
+
+		
+		
+		_("sidebar_title").innerHTML = '<i class="fas fa-cog"></i> Settings';
+		this.SidebarContent(Body);		
+
+
+	}
+	this.ResetConfirm = function ResetConfirm (){
+
+		//TOGGLE SIDEBAR
+		// if(this.Sidebar == '' || this.Sidebar != 'settings'){
+		// 	this.DisplaySidebar('settings');
+		// }else{
+		// 	this.DisplaySidebar('close');
+		// }
+		
+		
+
+		
+		var Body;
+		
+		Body = '<h3>Reset Display</h3>';
+		Body += '<p>Resetting the display will clear all the data from the display and unpair it from the channels it was connected to.'
+		Body += '<button class="btn" onclick="App.DumpData();">Confirm Display Reset</button>';
+		Body += '<button class="btn" onclick="Display.DisplaySidebar(\'close\');"><i class="far fa-times-circle"></i> Cancel</button>';
 		
 
 		
@@ -1172,7 +1201,6 @@ function DisplayClass(){
 
 
 	}
-
 	this.DisplayMessage = function DisplayMessage (h,s,m){
 
 		App.Log (h + ' | ' + s + ' | ' + m);

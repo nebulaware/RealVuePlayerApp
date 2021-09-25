@@ -493,7 +493,7 @@ input:focus {
 	opacity:0;
 	z-index:9999;
 	background-color:rgba(0,0,0,0.8);
-	text-align: center;
+	text-align: left;
 	cursor: pointer;
 	transition: opacity 1s, height 1s;
 	
@@ -617,7 +617,27 @@ input:focus {
 		font-weight: 200;
 		font-size:22px;
 	}
-	
+	.btn{
+		position:relative;
+		margin:16px 0px;
+		border:1px solid #FFF;
+		padding:12px;
+		border-radius: 5px;
+		font-size:20px;
+		transition: background-color 300ms ease-in-out;
+		background-color: rgba(255,255,255,0.0);
+		color:#FFF;
+		width:100%;
+		display:block;
+				
+		&:hover{
+			background-color:rgba(255,255,255,0.10);
+			cursor:pointer;
+		}
+		i{
+			margin-right:8px;
+		}		
+	}
 	.close{
 		background:none;
 		width:36px;

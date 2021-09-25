@@ -50,7 +50,7 @@ function ApplicationManager(){
 	
 	
 	// *** APP STATES *** //
-	this.Debug 			= true;
+	this.Debug 			= false;
 	this.IsFullScreen	= false;
 	this.NetCon			= true; //NETWORK CONNECTION
 	
@@ -87,7 +87,9 @@ function ApplicationManager(){
 		//CHECK LOCAL STORAGE FOR SESSION
 		if(this.LoadDisplay()){
 			
-			
+			//INITIALIZE REALTIME COMMUNICATION
+			RT.Init();
+
 			//AUTO RUN
 			
 			if(App.PushStatus == 'granted'){
@@ -314,10 +316,11 @@ function ApplicationManager(){
 
 	}
 	this.DumpData = function DumpData(){
-		
+
+		//Dumps the display session and local data
 		App.Log('Dumping Data');
 		
-		FS.PurgeFiles();
+		FM.Purge(); //Dump all media files
 
 		Storage.remove('display');
 		Storage.remove('files');
@@ -330,6 +333,11 @@ function ApplicationManager(){
 
 	}
 
+	this.PurgeFiles = function PurgeFiles (){
+
+		FM.Purge(); //Dump all media files
+		setTimeout(function(){ location.reload(); }, 2000);
+	}
 
 	this.RemoveDisplay = function RemoveDisplay(){
 		
@@ -390,7 +398,7 @@ function ApplicationManager(){
 		
 		console.log(payload);
 		
-		var data = payload.data;
+		var data = payload;
 		
 		if(data.action == 'pair'){
 			
@@ -407,7 +415,10 @@ function ApplicationManager(){
 			
 			//JUST REFRESH CHANNEL
 			Display.LoadChannel();
-			
+		
+		}else if(data.action == 'purge'){
+
+			App.PurgeFiles();
 			
 		}else if(data.action == 'alert'){
 			
@@ -421,24 +432,11 @@ function ApplicationManager(){
 		
 		var icon, status_class;
 		
-		if(App.PushSupport == false || App.PushStatus == 'denied'){
-			
-			icon			= '<i class="fas fa-stopwatch"></i>';
-			status_class	= 'online';
-			
-		}else if(App.PushSupport == true && App.PushStatus == 'granted'){
-			
-			//WHETHER SERVER IS RUNNING
-			if(App.PushRunning){
-				icon			= '<i class="fas fa-exchange-alt"></i>';
-				status_class	= 'online pulsing';	
-			}else{
-				icon			= '<i class="fas fa-exchange-alt"></i>';
-				status_class	= 'online';	
-			}
 
-		}
-		
+		icon			= '<i class="fas fa-exchange-alt"></i>';
+		status_class	= 'online pulsing';	
+
+
 		
 		_("notification_status").className = status_class;
 		_("notification_status").innerHTML = icon;

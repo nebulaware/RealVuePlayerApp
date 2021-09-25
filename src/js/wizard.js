@@ -151,8 +151,6 @@ function WizardClass(){
 		
 		var PushSkip = false;
 		
-		//Bypass
-		Display.UpdateDisplay({'field':'method','value':'long'});
 		
 		var Body =  '<div class="setup" style="max-width:600px;">';
 
@@ -162,63 +160,8 @@ function WizardClass(){
 			Body += '<p>Click on the following permissions and when prompted, be sure to approve them. Not allowing these permissions can cause player issues.</p>';
 			
 			
-			if(App.PushSupport){
-				
-				
-				//HANDLE ALREADY AUTHORIZED
-				if(App.PushStatus == 'granted' && App.Display.method == '' ){
-					
-					Body += '<p class="permission granted"><span class="title">Notifications </span><span id="notify_result" class="status"><i class="fas fa-check"></i></span></p>';
-					
-					//RUN FIREBASE
-					this.RequestNotification();
-					
-					
-				}else{
-				
-
-					if( App.PushStatus == 'granted'){
-
-						Body += '<p class="permission granted"><span class="title">Notifications </span><span id="notify_result" class="status"><i class="fas fa-check"></i></span></p>';
-						PushSkip = true;
-						
-						if(App.PiPlayer){
-							//Auto Next
-							Wizard.Step(3);
-						}
-
-					}else if( App.PushStatus == 'denied'){
-
-						Body += '<p class="permission denied"><span class="title">Notifications </span><span id="notify_result" class="status"><i class="fas fa-times"></i></span></p>';
-						
-
-					}else if( App.PushStatus == 'default'){
-
-						Body += '<p class="permission" onclick="Wizard.RequestNotification();"><span class="title">Notifications </span><span id="notify_result" class="status"><i class="fas fa-plus"></i></span></p>';
-
-					}
-					
-				}
-				
-			}else{
-				
-				if(App.Display.method == ''){
-				
-					//NOTIFICATIONS NOT SUPPORTED 
-					Display.UpdateDisplay({'field':'method','value':'long'});
-					
-				}else{
-					PushSkip = true;
-				}
-				
-				Body += '<p class="permission"><span class="title">Notifications (Not Supported)</span><span id="notify_result" class="status"><i class="fas fa-ban"></i></span></p>';
-				
-				
-			}
-			
-
-		
-			//Body += '<button class="btn" onclick="Wizard.Step(3)" ' + ((PushSkip)? '' : 'disabled')+'>NEXT</button>';
+			Body += '<p class="permission granted"><span class="title">Realtime </span><span id="notify_result" class="status"><i class="fas fa-check"></i></span></p>';	
+			Display.UpdateDisplay({'field':'method','value':'push'});
 			
 			Body += '</div>';
 			Body += '</div>';
@@ -239,7 +182,7 @@ function WizardClass(){
 		var LocationSkip	= false;
 		
 
-		
+		Display.UpdateDisplay({'field':'location','value':'unsupported'});
 		
 		
 		var Body =  '<div class="setup" style="max-width:600px;">';
@@ -291,7 +234,7 @@ function WizardClass(){
 				
 				if(App.Display.location == ''){
 					
-					Display.UpdateDisplay({'field':'location','value':'unsupported'});
+					
 					
 				}else{
 					LocationSkip = true;

@@ -93,6 +93,9 @@
 <script src="js/plugins/video.min.js?"></script>
 <script src="js/plugins/scroll.min.js?"></script>
 
+
+<script src="js/pusher.js?"></script>
+
 <!-- LOAD EXTERNAL RESOURCES -->
 <script src="https://player.vimeo.com/api/player.js"></script>
 	
@@ -138,7 +141,58 @@
 
 
 	
+	function RealtimeClass (){
 		
+		this.Running = false;
+		this.messaging;
+		
+		this.Pusher; //Holder for Pusher
+		this.Channel;
+		
+		
+		
+		this.Init = function Init(){
+			
+			//Should only be initialized if the device has an ID
+	
+			
+			if(this.Running){
+				console.log('Pusher should be running');
+				return false;
+			}
+			
+			this.Running = true;
+			
+			App.PushSupport = true;
+			App.PushStatusBar();
+
+			if(App.Display.method != 'push' && App.View != 'wizard'){
+				Display.UpdateDisplay({'field':'method','value':'push'});
+			}
+			
+			// Enable pusher logging - don't include this in production
+			//Pusher.logToConsole = true;
+
+			this.Pusher = new Pusher('29afc8f9000c23956c01', {
+			  cluster: 'us2'
+			});
+
+			this.Channel = RT.Pusher.subscribe(App.Display.code);
+			
+			this.Channel.bind('action', function(data) {
+			  	
+				App.PushResponse(data);
+			});			
+			
+			
+		}
+			
+		
+		
+		
+	}	
+		
+	var RT = new RealtimeClass();		
 
  /* CURRENTLY UNSUPPORTED		
 		

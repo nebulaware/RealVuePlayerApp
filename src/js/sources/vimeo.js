@@ -33,7 +33,7 @@ function VimeoManager (){
 				
 				 App.Reload();
 				 
-			 }, 21600000);	//5 Minutes	
+			 }, 21600000);	//6 hour reload
 		
 		
 	}
