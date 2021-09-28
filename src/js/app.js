@@ -50,7 +50,7 @@ function ApplicationManager(){
 	
 	
 	// *** APP STATES *** //
-	this.Debug 			= true;
+	this.Debug 			= false;
 	this.IsFullScreen	= false;
 	this.NetCon			= true; //NETWORK CONNECTION
 	
@@ -350,11 +350,28 @@ function ApplicationManager(){
 		*/
 	}	
 
-	this.Debugger = function Debugger (){
+	this.Debugger = function Debugger (action){
 
-		this.Debug = true;
+		if(action == 'show'){
 
-		ipcRenderer.send('launch-console', 'now')
+			App.Debug = true; //TURN ON DEBUGGING IF NOT ALREADY
+	
+			document.getElementById('console').classList.remove('hide');
+			ConsoleLogHTML.connect(document.getElementById("console_log"));
+			console.log('On Screen Debugging Activated');
+
+		}else if(action == 'hide'){
+
+			document.getElementById('console').classList.add('hide');
+			
+
+		}else if(action == 'advanced'){
+			
+			this.Debug = true;
+
+			ipcRenderer.send('launch-console', 'now')
+		
+		}
 
 	}
 	

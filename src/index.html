@@ -29,7 +29,14 @@
 
 <body onresize="App.UpdateResolution();">
 	
-	<div id="console" class="hide"><div class="console_buttons"><button onclick="App.Console('shrink')">Shrink / Expand</button></div><ul id="console_log"></ul></div>
+	<!-- Built-in -->
+	<div id="console" class="hide">
+		<div class="console_buttons">
+			<button onclick="App.Console('shrink')">Shrink / Expand</button>
+			<button onclick="App.Debugger('advanced')">Advanced</button>
+			<button onclick="App.Console('close')">Close</button>
+		</div>
+		<ul id="console_log"></ul></div>
 	
 	<!-- preloader -->
 	<div id="preloader" class="loading"><img onclick="App.Preloader()" src="images/logo.svg" alt="logo"><div class="preloader-wrapper big active"><div class="spinner-layer spinner-blue-only"><div class="circle-clipper left"> <div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div></div></div>		

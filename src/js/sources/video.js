@@ -1,3 +1,4 @@
+const { app } = require("electron");
 
 function VideoManager (){
 		this.Param = {
@@ -102,10 +103,22 @@ function VideoManager (){
 	
 	this.GetFile = function GetFile(path){
 		
+
+		console.warn(path);
+
 		var File = {};
 		
+			try {
+
 			File.name 	= path.substring(path.lastIndexOf('/')+1);
 			File.ext	= path.split('.').pop();
+
+			}catch (err) {
+				
+				console.error(err);
+				toast.error('File Error:' + err);
+
+			}
 		
 		
 		
@@ -167,6 +180,10 @@ function VideoManager (){
 	}
 
 	this.Completed = function Completed (data){
+
+		// ** STORE FILE IN FILE LIST ** //
+		FM.AddToList(data.url,data.filePath);
+
 
 		//Done downloading file - Next Step
 		Display.Preload('next');

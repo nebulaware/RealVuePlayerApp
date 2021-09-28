@@ -1162,7 +1162,7 @@ function DisplayClass(){
 		Body = '<h3>Settings</h3>';
 		Body += '<button class="btn" onclick="App.PurgeFiles();"><i class="fas fa-trash"></i>Purge Files</button>';
 		Body += '<button class="btn" onclick="Display.ResetConfirm();"><i class="fas fa-redo-alt"></i> Reset Display</button>';
-		Body += '<button class="btn" onclick="App.Debugger();"><i class="fas fa-bug"></i> Debug Console</button>';
+		Body += '<button class="btn" onclick="App.Debugger(\'show\');"><i class="fas fa-bug"></i> Debug Console</button>';
 		Body += '<button class="btn" onclick="App.CloseApp();" style="margin-top:32px;"><i class="far fa-times-circle" ></i> Close Application</button>';
 		
 

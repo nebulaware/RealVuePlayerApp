@@ -17,6 +17,7 @@ function VimeoManager (){
 	this.Playing	= false;
 	this.PlayFailed	= 0;
 	
+	this.DownloadPath	= '';
 	
 	this.Quality = 'small';
 	
@@ -25,15 +26,25 @@ function VimeoManager (){
 		console.log('Starting Vimeo Player');
 		this.Data = data;
 		
-		this.RunAPI(data);
+		if(this.Download(data)){
+			//Video Downloaded
+			var local	= FM.GetLocal(data)
+			Video.Play(local);
+
+		}else{
+			//Stream Video ** Requires Internet access **
+			this.RunAPI(data);
+		}
+
 		
 		
-		//console.log('6 hour reload');
-		 setInterval(function(){
+		
+		// //console.log('6 hour reload');
+		//  setInterval(function(){
 				
-				 App.Reload();
+		// 		 App.Reload();
 				 
-			 }, 21600000);	//6 hour reload
+		// 	 }, 21600000);	//6 hour reload
 		
 		
 	}
@@ -45,7 +56,20 @@ function VimeoManager (){
 	}
 
 	this.Preload = function Preload(data){
-		Display.Preload('next'); //Nothing to Preload	
+		
+
+		if(this.Download(data)){
+			//Download Video
+			this.DownloadPath = data; //SET DOWNLOAD PATH
+
+			Downloader.Download('vimeo',data);
+
+		}else{
+			//Stream Video
+			Display.Preload('next'); //Nothing to Preload		
+		}
+
+
 	}
 	
 	this.RunPlayer = function RunPlayer(videoid){
@@ -57,6 +81,17 @@ function VimeoManager (){
 		
 	}
 	
+	this.Download = function Download (url){
+
+		//Determine the URL and if the method is streaming or downloading
+
+ 	return url.match(/(https?:\/\/(.+?\.)?player.vimeo\.com\/external(\/[A-Za-z0-9\-\._~:\/\?#\[\]@!$&'\(\)\*\+,;\=]*)?)/g);
+
+
+	}
+
+
+
 	this.RunAPI = function RunAPI (data){
 		
 		//console.log('Running Youtube API');
@@ -289,7 +324,35 @@ function VimeoManager (){
 		
 	}
 	
+	this.Completed = function Completed (data){
+
+		//Done downloading file - Next Step
+		
+		console.log('******',VimeoPlayer.DownloadPath,data);
+
+		FM.AddToList(VimeoPlayer.DownloadPath,data.filePath);
+
+		Display.Preload('next');	
 	
+
+	}
+
+	this.Progress = function Progress (data){
+
+		var Message = 'Downloaded: ' + data.downloaded + ' @ ' + data.speed;
+
+		
+		var Body =  '<div class="standby">';
+		Body += '<img src="images/logo.svg">';
+		Body += '<h1>Downloading</h1>';
+		Body += '<h3>Please wait while we download your Youtube video</h3>';	
+		Body += '<p>' + Message + '</p>';	
+		Body += '</div>';	
+		
+		
+		_("viewer").innerHTML = Body;			
+
+	}	
 }
 
 var VimeoPlayer = new VimeoManager();

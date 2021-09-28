@@ -1,4 +1,5 @@
-const { app } = require("electron");
+// const { app } = require("electron");
+// const { fstat } = require("original-fs");
 
 function DownloadManager (){
     this.Param = {
@@ -8,8 +9,7 @@ function DownloadManager (){
     }	
 
     this.Source;
-
-    this.UsedFiles = []; //
+    this.UsedFiles  = []; //
 
     this.Download = function Download (source, url){
         
@@ -24,6 +24,7 @@ function DownloadManager (){
             Presenter.Sources[Downloader.Source].Completed(File);
         }else{
             //File DOES NOT Exist
+            App.Log('Downloading File:' + url);
             ipcRenderer.send('download-single', url)
         }
         
@@ -32,11 +33,21 @@ function DownloadManager (){
 
         console.log(data);
 
-        // ** STORE FILE IN FILE LIST ** //
-        FM.AddToList(data.url,data.filePath);
+        if(Downloader.isYoutube){
 
-        //Notify the source the file is downloaded
-        Presenter.Sources[Downloader.Source].Completed(data);
+            this.YoutubeBackup();
+            this.isYoutube = false;
+
+        }else{
+        
+
+
+        
+
+        }
+            //Notify the source the file is downloaded
+            Presenter.Sources[Downloader.Source].Completed(data);  
+ 
     }
 
     this.Progress = function Progress (data){
@@ -83,6 +94,9 @@ function DownloadManager (){
         App.Log(FilesToDelete.length + ' Files Deleted');
 
     }
+
+
+
 
 }
 

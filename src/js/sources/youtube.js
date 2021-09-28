@@ -12,10 +12,13 @@ function YoutubeManager (){
 	this.APIReady = false;
 	this.Player;
 	
+	this.metadata	= {'id':'','url':'','local':''};
+
 	this.State;
 	this.Downloading		= false;
 	this.DownloadPercent	= {'current':0,'last':0}; //Download Percent (to track progression)
 	this.DownloadFailed 	= 0;
+	this.HasStarted			= false; //Has the download attempted to start
 	this.TimeCheck; //USED FOR MONITORING TIMEOUT 
 	
 	this.Quality = 'small';
@@ -50,14 +53,23 @@ function YoutubeManager (){
 	
 	this.Preload = function Preload(data){
 
+		//RESET
+		this.DownloadPercent	= {'current':0,'last':0};	
+		
 
 		const url = 'https://www.youtube.com/watch?v=' + data;
 		const output = DownloadPath + '/' + data +'.mp4';
-		
-		// this.GetInfo(data);
+
+		this.metadata.id 	= data;
+		this.metadata.url	= url;
+		this.metadata.local	= output;
+
+
+		//this.CheckFormats(data); //SEE IF HD VERSION IS FOUND
 		// return;
 
         let File = FM.CheckForFile(url);
+
 
         Downloader.ActiveFile(url); //Log this file is actively used
 
@@ -68,9 +80,18 @@ function YoutubeManager (){
 
         }
 
-		
+		App.Log('Starting to Download Youtube Video: ' + url);
+
+
+		//Monitor Start of download
+		setTimeout(Youtube.MonitorStart, 8000);
+
 
 		let video = ytdl(url, { quality: 'highestvideo'});
+		//let video = ytdl(url, { quality: '137'});
+
+		console.log('Video:', video);
+
 		let starttime;
 		video.pipe(fs.createWriteStream(output));
 		video.once('response', () => {
@@ -159,7 +180,7 @@ function YoutubeManager (){
 			console.log('rating:', info.player_response.videoDetails.averageRating);
 			console.log('uploaded by:', info.videoDetails.author.name);
 			console.log('Info:',info);
-
+			
 			toast.info('Got Video Info for ' + info.videoDetails.title);
 			// const json = JSON.stringify(info, null, 2)
 			//   // eslint-disable-next-line max-len
@@ -184,7 +205,16 @@ function YoutubeManager (){
 
 	}
 
+	this.CheckFormats = async function CheckFormats(videoID){
 
+
+		let info = await ytdl.getInfo(videoID);
+		let format = ytdl.chooseFormat(info.formats, { quality: '137' });
+		console.log('Format found!', format);
+
+
+
+	}
 
 	this.MonitorDownload = function MonitorDownload (){
 
@@ -247,6 +277,79 @@ function YoutubeManager (){
 
 
 	}
+
+	this.MonitorStart = function MonitorStart (){
+		//Makes sure the video starts to download. If it doesn't we need to run the backup
+
+		if(Youtube.Downloading){
+			//Youtube is downloading
+		}else{
+			//Need to launch backup
+			toast.error('Your video did not appear to start downloading, running backup');
+
+			//TODO: LOG ERROR
+			//
+			Youtube.BackupDownloader();
+		}
+
+	}
+
+	this.BackupDownloader = async function BackupDownloader (){
+
+		let info = await ytdl.getInfo(this.metadata.id);
+		let format = ytdl.chooseFormat(info.formats, { quality: '137' });
+		console.log('Format found!', format,format.url);
+
+		if(format.url != undefined){
+
+			Downloader.isYoutube = true;
+			Downloader.Download('youtube',format.url);
+
+		}else{
+
+			toast.error('No HD format for this video was found');
+
+		}
+
+
+
+	}
+
+
+	//BACKUP FILE DOWNLOAD SYSTEM
+
+	this.Completed = function Completed (data){
+
+		//Rename since the downloaded file doesnt match
+		fs.rename(data.filePath, Youtube.metadata.local);
+
+		//Done downloading file - Next Step
+		Youtube.Downloading = false;
+
+		FM.AddToList(Youtube.metadata.url,Youtube.metadata.local);
+		Display.Preload('next');	
+	
+
+	}
+
+	this.Progress = function Progress (data){
+
+		var Message = 'Downloaded: ' + data.downloaded + ' @ ' + data.speed;
+
+		
+		var Body =  '<div class="standby">';
+		Body += '<img src="images/logo.svg">';
+		Body += '<h1>Downloading</h1>';
+		Body += '<h3>Please wait while we download your Youtube video</h3>';	
+		Body += '<p>' + Message + '</p>';	
+		Body += '</div>';	
+		
+		
+		_("viewer").innerHTML = Body;			
+
+	}
+
+
 
 
 }
