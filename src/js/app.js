@@ -50,7 +50,7 @@ function ApplicationManager(){
 	
 	
 	// *** APP STATES *** //
-	this.Debug 			= false;
+	this.Debug 			= true;
 	this.IsFullScreen	= false;
 	this.NetCon			= true; //NETWORK CONNECTION
 	
