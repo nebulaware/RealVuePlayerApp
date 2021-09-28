@@ -109,6 +109,14 @@ ipcMain.on('synchronous-message', (event, arg) => {
   event.returnValue = 'pong'
 })
 
+// Launch Debug Console
+ipcMain.on('launch-console', (event, arg) => {
+
+  mainWindow.webContents.openDevTools()
+
+})
+
+
 // Close Application
 ipcMain.on('close-me', (evt, arg) => {
   app.quit()

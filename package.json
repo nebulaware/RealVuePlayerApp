@@ -50,7 +50,12 @@
         },
         {
           "name": "@electron-forge/maker-deb",
-          "config": {}
+          "config": {
+            "options": {
+              "maintainer": "Nathan Pearce",
+              "homepage" : "https://nebulaware.co"
+            }
+          }
         },
         {
           "name": "@electron-forge/maker-rpm",

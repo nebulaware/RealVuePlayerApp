@@ -350,6 +350,13 @@ function ApplicationManager(){
 		*/
 	}	
 
+	this.Debugger = function Debugger (){
+
+		this.Debug = true;
+
+		ipcRenderer.send('launch-console', 'now')
+
+	}
 	
 	this.NetworkChanged = function NetworkChanged (status, event){
 		
