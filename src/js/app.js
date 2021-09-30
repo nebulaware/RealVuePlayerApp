@@ -1,5 +1,5 @@
 // RealVue Player Application
-// Version 	2.1040
+// Version 	2.1041
 // Author	Nathan Pearce
 
 "use strict";
@@ -10,7 +10,7 @@ const { fstat } = require("original-fs");
 function ApplicationManager(){
 	//APPLICATION DATA
 	this.Data			= {};
-	this.Version		= 21040;
+	this.Version		= 21041;
 	this.VersionPhase	= 'ALPHA';
 	this.View			= 'Viewer';
 	
@@ -457,7 +457,7 @@ function ApplicationManager(){
 		}else if(data.action == 'purge'){
 
 			App.PurgeFiles();
-			
+
 		}else if(data.action == 'update'){
 			
 			Display.CheckForUpdates('auto');
