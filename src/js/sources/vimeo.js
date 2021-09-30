@@ -345,7 +345,7 @@ function VimeoManager (){
 		var Body =  '<div class="standby">';
 		Body += '<img src="images/logo.svg">';
 		Body += '<h1>Downloading</h1>';
-		Body += '<h3>Please wait while we download your Youtube video</h3>';	
+		Body += '<h3>Please wait while we download your video</h3>';	
 		Body += '<p>' + Message + '</p>';	
 		Body += '</div>';	
 		

@@ -7,11 +7,13 @@ const path = require('path')
 
 
 let mainWindow
+let DownloadPath = path.normalize(app.getPath("downloads") + '/realvuemedia'); //Set download path for assets
+
 
 //Download Manager
 const DownloadManager = require("electron-download-manager");
 DownloadManager.register({
-  downloadFolder: app.getPath("downloads") + "/realvuemedia"
+  downloadFolder: DownloadPath
 });
 
 
@@ -96,7 +98,7 @@ ipcMain.on('download-bulk', (event, arg) => {
 });
 
 ipcMain.on('get:download:path', (event, arg) => {
-  event.returnValue = app.getPath("downloads") + "/realvuemedia";
+  event.returnValue = DownloadPath;
 });
 
 ipcMain.on('asynchronous-message', (event, arg) => {

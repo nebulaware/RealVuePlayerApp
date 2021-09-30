@@ -9,12 +9,27 @@ function DownloadManager (){
     }	
 
     this.Source;
-    this.UsedFiles  = []; //
+    this.URL                = '';
+    this.UsedFiles          = []; //
+    this.IsDownloading      = false;
+    this.DownloadFailed 	= 0;
+    this.DownloadProgress   = {'current':0,'last':0,'friendly':''}; //Download Percent (to track progression)
+    this.TimeCheck; //USED FOR MONITORING TIMEOUT 
 
     this.Download = function Download (source, url){
         
+        //RESET
+        this.IsDownloading              = false;
+        this.DownloadFailed             = 0;
+        this.DownloadProgress.current   = 0;
+        this.DownloadProgress.last      = 0;
+        this.DownloadProgress.friendly  = '';
+
+
         //Takes source requesting download and the url of the source
         this.Source = source;
+        this.URL    = url;
+
         let File = FM.CheckForFile(url);
 
         this.ActiveFile(url); //Log this file is actively used
@@ -33,24 +48,20 @@ function DownloadManager (){
 
         console.log(data);
 
-        if(Downloader.isYoutube){
+        clearTimeout(Downloader.TimeCheck);
+        Downloader.IsDownloading = false;
 
-            this.YoutubeBackup();
-            this.isYoutube = false;
-
-        }else{
-        
-
-
-        
-
-        }
-            //Notify the source the file is downloaded
-            Presenter.Sources[Downloader.Source].Completed(data);  
+        //Notify the source the file is downloaded
+        Presenter.Sources[Downloader.Source].Completed(data);  
  
     }
 
     this.Progress = function Progress (data){
+
+        //Update progress with downloader
+        Downloader.IsDownloading                = true;
+        Downloader.DownloadProgress.current     = data.downloadBytes; //SET CURRENT PROGRESS
+        Downloader.DownloadProgress.friendly    = data.download;
 
         //Send progress status to source
         Presenter.Sources[Downloader.Source].Progress(data);
@@ -96,7 +107,69 @@ function DownloadManager (){
     }
 
 
+    this.MonitorDownload = function MonitorDownload (){
 
+		//If app is downloading, check progress to make sure it didn't stop
+
+		//MAKE SURE THERE ARE NO OTHER TIMEOUTS RUNNING ON PLAYER MONITOR
+		clearTimeout(Downloader.TimeCheck);
+		
+		console.log('Monitoring Downloader Download: Current:' + Downloader.DownloadProgress.current + ' | Last:' + Downloader.DownloadProgress.last);
+
+		let TimeLimit = 10000;
+		
+		 if(Downloader.IsDownloading){
+			 
+			 
+			 if(Downloader.DownloadProgress.current == Downloader.DownloadProgress.last){
+				 //NO DETECTED PROGRESS
+				  					 				 
+                 Downloader.DownloadFailed ++;
+
+				 //LOG ERROR
+				 
+				 
+			 }else{
+				
+				 //PLAYER APPEARS TO BE PROGRESSING - UPDATE THE LAST TIMESTAMP
+				 Downloader.DownloadProgress.last = Downloader.DownloadProgress.current;
+				 Downloader.DownloadFailed = 0; //ALWAYS RESET ON SUCCESS
+			 }
+			 
+			 
+			 if(Downloader.DownloadFailed > 3){
+				 
+				 //SLOW MONITOR
+				 TimeLimit = 20000
+				 //FAILED TO MANY TIMES - RELOADING
+				 
+				 if(App.NetCon){
+					 
+                    var message = Downloader.URL + ' @ ' + Downloader.DownloadProgress.friendly;
+
+					 Display.Log('ds-dm-dlfailed',message); //LOG FAILED EVENT
+					 
+					 //MAKE SURE THERE IS A NETWORK CONNECTION
+					 App.Reload();
+					 
+				 }else{
+					 
+					 toast.warning('No Network Connection. Retrying in 20 seconds');
+					 
+				 }
+
+				 
+			 }
+			 
+ 
+			 
+			 Downloader.TimeCheck = setTimeout(Downloader.MonitorDownload, TimeLimit); //CHECK EVERY 10 SECONDS
+			 
+			 
+		 }	
+
+
+	}
 
 }
 
