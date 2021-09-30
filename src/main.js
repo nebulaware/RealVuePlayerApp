@@ -4,11 +4,21 @@
 const { app, ipcMain, BrowserWindow } = require('electron')
 const url  = require('url')
 const path = require('path')
-
+const fs = require('fs');
 
 let mainWindow
 let DownloadPath = path.normalize(app.getPath("downloads") + '/realvuemedia'); //Set download path for assets
 
+//Make sure folder exists
+try { 
+  if(!fs.existsSync(DownloadPath)){
+    fs.mkdirSync(DownloadPath);
+  }
+}catch (err){
+
+  console.error(err);
+
+}
 
 //Download Manager
 const DownloadManager = require("electron-download-manager");
