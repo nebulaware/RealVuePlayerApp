@@ -181,6 +181,8 @@ function PlaylistManager (){
 
 		let Count = this.PreloadCount + 1;		
 
+		FM.AddToList(data.url,data.filePath); //Add downloaded file to list
+
 		if(Count == this.PlaylistCount){
 
 			Display.Preload('next');

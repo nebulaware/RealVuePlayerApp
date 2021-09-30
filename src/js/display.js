@@ -14,6 +14,9 @@ function DisplayClass(){
 	this.PingRate 			= 1; //0 = 30 seconds, 1 = 5 minutes, 2 = 1 hour, 3 = 8 hours, 4 = 24 hours 
 	this.Sidebar			= '';
 	this.PreviousSession	= false;
+
+	this.UpdateMethod		= 'manual';
+
 	//LONG POLLING
 	this.PollMinute = 0;
 	
@@ -179,7 +182,29 @@ function DisplayClass(){
 			
 			Display.LoadChannel();
 					
+		}else if( data.action == 'checkforappplayerupdate'){
 			
+			let AppVersion = App.Version;
+			let CurrentVersion = response.data;
+
+			if(AppVersion < CurrentVersion){
+				//UPDATE NEEDED
+
+				if(Display.UpdateMethod == 'manual'){
+					toast.info('There is an update available');
+					Display.UpdateAvailable(CurrentVersion);
+
+				}else if(Display.UpdateMethod == 'auto'){
+					App.Update();
+				}
+
+			}else{
+				toast.success('You are running the current version');
+			}
+
+			//RESET
+			Display.UpdateMethod = 'manual';
+
 		}else if( data.action == 'checkin'){
 			
 			//DO NOTHING
@@ -245,7 +270,26 @@ function DisplayClass(){
 		App.Send(Display.Param);		
 		
 	}
+
+	this.CheckForUpdates = function CheckForUpdates(method){
+		
+		App.Log('Checking For Updates');
+		
+		Display.UpdateMethod = method;
+
+		if(method == 'manual'){
+			this.DisplaySidebar('close');
+			toast.info('Checking for Updates');
+		}
 	
+		//LOG DISPLAY EVENT
+		Display.Param.action = 'checkforappplayerupdate';
+		Display.Param.data = {};
+		
+		App.Send(Display.Param);		
+		
+	}	
+
 	this.PairDisplay = function PairDisplay(){
 		
 		//PAIR DISPLAY	
@@ -1163,6 +1207,8 @@ function DisplayClass(){
 		Body += '<button class="btn" onclick="App.PurgeFiles();"><i class="fas fa-trash"></i>Purge Files</button>';
 		Body += '<button class="btn" onclick="Display.ResetConfirm();"><i class="fas fa-redo-alt"></i> Reset Display</button>';
 		Body += '<button class="btn" onclick="App.Debugger(\'show\');"><i class="fas fa-bug"></i> Debug Console</button>';
+		Body += '<button class="btn" onclick="Display.CheckForUpdates(\'manual\');"><i class="fas fa-cloud-upload-alt"></i> Check For Updates</button>';
+		Body += '<button class="btn" onclick="App.Relaunch();"><i class="fas fa-sync"></i> Relaunch App</button>';
 		Body += '<button class="btn" onclick="App.CloseApp();" style="margin-top:32px;"><i class="far fa-times-circle" ></i> Close Application</button>';
 		
 
@@ -1181,15 +1227,13 @@ function DisplayClass(){
 		// }else{
 		// 	this.DisplaySidebar('close');
 		// }
-		
-		
 
 		
 		var Body;
 		
 		Body = '<h3>Reset Display</h3>';
 		Body += '<p>Resetting the display will clear all the data from the display and unpair it from the channels it was connected to.'
-		Body += '<button class="btn" onclick="App.DumpData();">Confirm Display Reset</button>';
+		Body += '<button class="btn" onclick="App.DumpData();" style="margin: 36px 0 18px 0;">Confirm Display Reset</button>';
 		Body += '<button class="btn" onclick="Display.DisplaySidebar(\'close\');"><i class="far fa-times-circle"></i> Cancel</button>';
 		
 
@@ -1202,6 +1246,33 @@ function DisplayClass(){
 
 
 	}
+
+	this.UpdateAvailable = function UpdateAvailable (version){
+
+		//TOGGLE SIDEBAR
+		if(this.Sidebar == '' || this.Sidebar != 'update'){
+			this.DisplaySidebar('update');
+		}
+
+		
+		var Body;
+		
+		Body = '<h3>Update Available</h3>';
+		Body += '<p>There is an update available! You are running version: ' + (App.Version / 10000) + ' and the latest version is ' + (version / 10000) + ''
+		Body += '<button class="btn" onclick="App.UpdateApp();" style="margin: 36px 0 18px 0;">Update Now</button>';
+		Body += '<button class="btn" onclick="Display.DisplaySidebar(\'close\');"><i class="far fa-times-circle"></i> Cancel</button>';
+		
+
+		
+		
+		_("sidebar_title").innerHTML = '<i class="fas fa-cog"></i> Settings';
+		this.SidebarContent(Body);		
+
+
+
+
+	}	
+
 	this.DisplayMessage = function DisplayMessage (h,s,m){
 
 		App.Log (h + ' | ' + s + ' | ' + m);

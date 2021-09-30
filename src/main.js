@@ -1,10 +1,12 @@
 // main.js
 
 // Modules to control application life and create native browser window
-const { app, ipcMain, BrowserWindow } = require('electron')
+const { app, ipcMain, BrowserWindow, shell } = require('electron')
 const url  = require('url')
 const path = require('path')
 const fs = require('fs');
+
+
 
 let mainWindow
 let DownloadPath = path.normalize(app.getPath("downloads") + '/realvuemedia'); //Set download path for assets
@@ -127,9 +129,34 @@ ipcMain.on('launch-console', (event, arg) => {
   mainWindow.webContents.openDevTools()
 
 })
+// Update Application
+ipcMain.on('app:update', (evt, arg) => {
+  
+  console.log('App Update Requested');
+  let platform  = process.platform;
+  let ext       = 'sh';
+  if(platform === "win32"){
+    ext = 'bat';
+  }else{
+    ext = 'sh';
+  }
+  
 
+  let updater = path.join(__dirname, '..','updater.'+ ext);
+
+  //Launch Update Script and close app to allow update
+  shell.openPath(updater);
+  app.quit()
+});
+
+
+// Relaunch Application
+ipcMain.on('app:relaunch', (evt, arg) => {
+  app.relaunch()
+  app.exit()
+});
 
 // Close Application
-ipcMain.on('close-me', (evt, arg) => {
+ipcMain.on('app:close', (evt, arg) => {
   app.quit()
 })

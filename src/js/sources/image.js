@@ -50,6 +50,9 @@ function ImageManager (){
 	
 	this.Completed = function Completed (data){
 
+
+		FM.AddToList(data.url,data.filePath); //Add downloaded file to list
+
 		//Done downloading file - Next Step
 		Display.Preload('next');
 	

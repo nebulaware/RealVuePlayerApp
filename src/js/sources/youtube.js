@@ -84,7 +84,7 @@ function YoutubeManager (){
 
 
 		//Monitor Start of download
-		setTimeout(Youtube.MonitorStart, 8000);
+		setTimeout(Youtube.MonitorStart, 10000);
 
 
 		let video = ytdl(url, { quality: 'highestvideo'});
@@ -302,7 +302,6 @@ function YoutubeManager (){
 
 		if(format.url != undefined){
 
-			Downloader.isYoutube = true;
 			Downloader.Download('youtube',format.url);
 
 		}else{

@@ -1,5 +1,5 @@
 // RealVue Player Application
-// Version 	2.1028
+// Version 	2.1040
 // Author	Nathan Pearce
 
 "use strict";
@@ -10,7 +10,7 @@ const { fstat } = require("original-fs");
 function ApplicationManager(){
 	//APPLICATION DATA
 	this.Data			= {};
-	this.Version		= 21032;
+	this.Version		= 21040;
 	this.VersionPhase	= 'ALPHA';
 	this.View			= 'Viewer';
 	
@@ -21,6 +21,7 @@ function ApplicationManager(){
 	this.Key			= 'e38e64ecdd5df53cbad321651137cd4791606c3e8347403e3ee710d31f113d21'; //PUBLIC KEY
 	this.Components 	= [];
 
+	this.CurrentStatus	= ''; //Apps current status
 	
 	this.AppInitStart	= false; //TO DETERMINE IF THE APP REACHED 
 	this.AppFrame		= '';
@@ -301,7 +302,7 @@ function ApplicationManager(){
 	}
 
 	this.Reload = function Reload(){
-		
+		//Reloads the Renderer
 		if(App.AllowRefresh){
 		
 			location.reload();
@@ -310,11 +311,24 @@ function ApplicationManager(){
 			console.log('A reload was requested but the app is set not to allow.')
 		}
 	}
-	this.CloseApp = function CloseApp (){
-
-		ipcRenderer.send('close-me');
+	this.Relaunch = function Relaunch(){
+		//Relaunches the Electron Application
+		ipcRenderer.send('app:relaunch');
 
 	}
+
+	this.CloseApp = function CloseApp (){
+
+		ipcRenderer.send('app:close');
+
+	}
+
+	this.UpdateApp = function UpdateApp(){
+
+		ipcRenderer.send('app:update');
+	}
+
+
 	this.DumpData = function DumpData(){
 
 		//Dumps the display session and local data
@@ -443,6 +457,10 @@ function ApplicationManager(){
 		}else if(data.action == 'purge'){
 
 			App.PurgeFiles();
+			
+		}else if(data.action == 'update'){
+			
+			Display.CheckForUpdates('auto');
 			
 		}else if(data.action == 'alert'){
 			
