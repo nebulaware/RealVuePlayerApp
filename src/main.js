@@ -148,7 +148,9 @@ ipcMain.on('app:update', (evt, arg) => {
 
   //Launch Update Script and close app to allow update
   if(platform === 'win32'){
+    
     shell.openPath(updater);
+
   }else{
     const child = execFile(updater, function (err,data){
       console.log(err);
@@ -157,7 +159,7 @@ ipcMain.on('app:update', (evt, arg) => {
     })
   }
   
-  app.quit()
+ // app.quit()
 });
 
 
