@@ -5,6 +5,8 @@ const { app, ipcMain, BrowserWindow, shell } = require('electron')
 const url  = require('url')
 const path = require('path')
 const fs = require('fs');
+const { execFile } = require('child_process');
+
 
 
 
@@ -145,7 +147,16 @@ ipcMain.on('app:update', (evt, arg) => {
   let updater = path.join(__dirname, '..','updater.'+ ext);
 
   //Launch Update Script and close app to allow update
-  shell.openPath(updater);
+  if(platform === 'win32'){
+    shell.openPath(updater);
+  }else{
+    const child = execFile(updater, function (err,data){
+      console.log(err);
+      console.log(data.toString());
+
+    })
+  }
+  
   app.quit()
 });
 
