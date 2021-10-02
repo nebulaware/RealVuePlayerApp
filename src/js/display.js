@@ -17,10 +17,11 @@ function DisplayClass(){
 
 	this.UpdateMethod		= 'manual';
 
-	//LONG POLLING
+	//POLLING
 	this.PollMinute = 0;
 	
 	//CLOCK
+	this.Timer;
 	this.TickRate 	= 1000; //1000 = 1 Second | 60000 = 1 Minute
 	this.NextEvent	= '';
 	this.Seconds	= 0;
@@ -59,22 +60,7 @@ function DisplayClass(){
 		
 		
 		
-
-		//Start Ping Timer
-		if(this.PingRate == 0){
-			
-			this.Timer = setInterval(Display.CheckIn, 30000); //30 seconds		
-		
-		}else{
-			
-			this.Timer = setInterval(Display.CheckIn, 300000);	//5 Minutes	
-		}
-			
-		
-		
-				
-			
-			
+	
 		
 	}
   
@@ -207,7 +193,9 @@ function DisplayClass(){
 
 		}else if( data.action == 'checkin'){
 			
-			//DO NOTHING
+			//Reset Counter on success
+			this.PollMinute = 0; //RESET COUNTER
+			
 			
 		}
 		
@@ -675,52 +663,6 @@ function DisplayClass(){
 		
 	}
 	
-
-	
-	this.FullScreen = function FullScreen (action){
-		
-		if(action === 'enable'){
-			
-			var element = _("maindisplay");
-			
-			if(element.requestFullscreen) {
-				element.requestFullscreen();
-			} else if(element.mozRequestFullScreen) {
-				element.mozRequestFullScreen();
-			} else if(element.webkitRequestFullscreen) {
-				element.webkitRequestFullscreen();
-			} else if(element.msRequestFullscreen) {
-				element.msRequestFullscreen();
-			}
-			
-			this.IsFullScreen = true;
-			
-		}else if(action === 'disable'){
-			
-			if(document.exitFullscreen) {
-				document.exitFullscreen();
-			} else if(document.mozCancelFullScreen) {
-				document.mozCancelFullScreen();
-			} else if(document.webkitExitFullscreen) {
-				document.webkitExitFullscreen();
-			}
-			
-			this.IsFullScreen = false;
-			
-		}
-		
-		
-	}
-	
-	this.ToggleFullscreen = function ToggleFullscreen(){
-		
-		if(this.IsFullScreen){
-			this.FullScreen('disable');
-		}else{
-			this.FullScreen('enable');
-		}
-	}	
-	
 	
 	this.ChannelError = function ChannelError(err){
 		
@@ -801,8 +743,6 @@ function DisplayClass(){
 		Body += '<p>' + Message + '</p>';	
 		Body += '</div>';	
 	
-	
-		
 		
 		_("viewer").innerHTML = Body;
 		
@@ -814,19 +754,14 @@ function DisplayClass(){
 		Clock functions are intended for tracking the time and schedules
 	*/
 	this.Tick = function Tick (){
-		
-		
-		
+				
 		Display.UpdateClock();
-		
+	
 		//MINUTE TICKER
 		if(Display.Seconds == '00' || Display.Minute == ''){
 			Display.MinuteTick();
 		}
-		
-		
-		setTimeout(Display.Tick, Display.TickRate);
-		
+	
 	}
 	
 	this.MinuteTick = function MinuteTick(){
@@ -879,8 +814,7 @@ function DisplayClass(){
 		
 		Display.Seconds 	= moment().format('ss');
 		
-		
-		
+
 		_("ctime").innerHTML = moment().format('hh:mm:ss A');
 		_("cdate").innerHTML = moment().format('dddd, MMMM Do YYYY');;
 		
@@ -889,12 +823,13 @@ function DisplayClass(){
 	this.PollCheck = function PollCheck (){
 		
 		//NOW INSTANT WILL POLL EVERY 120 minutes - 7/17/2020
-		var Limit = ((App.Display.method == 'long')? 15 : 15);
+		//**DEPRECATED: var Limit = ((App.Display.method == 'long')? 15 : 15);
 		
-		//USED FOR LONG POLLING
-		if(this.PollMinute == Limit){
+		//USED POLLING EVERY 30 MINUTES
+		if(this.PollMinute >= 30){
+			
 			this.CheckIn();
-			this.PollMinute = 0; //RESET COUNTER
+			
 		}else{
 			this.PollMinute++;
 		}
@@ -1296,7 +1231,11 @@ var Display = new DisplayClass();
 
 App.AddComponent(Display);
 
-var Dis = new DisplayClass();
+//SET TIMER (1 Second) - Setting outside of class
+Display.Timer = setInterval(Display.Tick, 1000);
+
+
+//var Dis = new DisplayClass();
 
 
 

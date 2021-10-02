@@ -104,8 +104,6 @@ function VideoManager (){
 	this.GetFile = function GetFile(path){
 		
 
-		console.warn(path);
-
 		var File = {};
 		
 			try {

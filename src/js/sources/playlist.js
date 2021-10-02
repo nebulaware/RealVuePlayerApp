@@ -116,6 +116,8 @@ function PlaylistManager (){
 		
 		var Item 	= Playlist.List[Playlist.CurrentItem];
 		
+
+
 		//console.log(Item);
 		
 		//ONLY KEEP RUNNING IF WE ARE STILL IN A PLAYLIST
