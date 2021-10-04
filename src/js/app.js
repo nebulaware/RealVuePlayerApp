@@ -10,7 +10,7 @@ const { fstat } = require("original-fs");
 function ApplicationManager(){
 	//APPLICATION DATA
 	this.Data			= {};
-	this.Version		= 21041;
+	this.Version		= 21042;
 	this.VersionPhase	= 'ALPHA';
 	this.View			= 'Viewer';
 	
@@ -51,7 +51,7 @@ function ApplicationManager(){
 	
 	
 	// *** APP STATES *** //
-	this.Debug 			= true;
+	this.Debug 			= false;
 	this.IsFullScreen	= false;
 	this.NetCon			= true; //NETWORK CONNECTION
 	
@@ -457,6 +457,10 @@ function ApplicationManager(){
 		}else if(data.action == 'purge'){
 
 			App.PurgeFiles();
+
+		}else if (data.action == 'reset'){
+
+			App.DumpData();
 
 		}else if(data.action == 'update'){
 			
