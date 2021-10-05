@@ -135,38 +135,46 @@ ipcMain.on('launch-console', (event, arg) => {
 ipcMain.on('app:update', (evt, arg) => {
   
   console.log('App Update Requested');
-  const { exec } = require("child_process");
+  
+  let updater = require('../updater.js');
+
 
   let platform  = process.platform;
   let ext       = ((platform === "win32")?  'bat' :  'sh');
   
 
-  let updater = path.join(__dirname, '..','updater.'+ ext);
+  let updatefile = path.join(__dirname, '..','updater.'+ ext);
 
   //Launch Update Script and close app to allow update
 
-  
+
 
   if(platform === 'win32'){
-    
-   shell.openPath(updater); 
-   app.quit()
    
+    updater.windows();
+  //  shell.openPath(updater); 
+  //  app.quit()
+
   }else{
 
-    let Commands = "git fetch && git reset --hard HEAD && git merge '@{u}' && npm install ";
+    const { exec } = require("child_process");
+    
+    updater.linux(exec);
 
-    exec(Commands, (error, stdout, stderr) => {
-      if (error) {
-          console.log(`error: ${error.message}`);
-          return;
-      }
-      if (stderr) {
-          console.log(`stderr: ${stderr}`);
-          return;
-      }
-      console.log(`stdout: ${stdout}`);
-  });
+
+  //   let Commands = "git fetch && git reset --hard HEAD && git merge '@{u}' && npm install ";
+
+  //   exec(Commands, (error, stdout, stderr) => {
+  //     if (error) {
+  //         console.log(`error: ${error.message}`);
+  //         return;
+  //     }
+  //     if (stderr) {
+  //         console.log(`stderr: ${stderr}`);
+  //         return;
+  //     }
+  //     console.log(`stdout: ${stdout}`);
+  // });
   }
   
 
