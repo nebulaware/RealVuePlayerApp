@@ -150,7 +150,8 @@ ipcMain.on('app:update', (evt, arg) => {
   if(platform === 'win32'){
     
    shell.openPath(updater); 
-
+   app.quit()
+   
   }else{
 
     let Commands = "git fetch && git reset --hard HEAD && git merge '@{u}' && npm install ";
@@ -168,7 +169,7 @@ ipcMain.on('app:update', (evt, arg) => {
   });
   }
   
-app.quit()
+
 });
 
 
