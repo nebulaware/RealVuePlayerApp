@@ -5,7 +5,7 @@ const { app, ipcMain, BrowserWindow, shell } = require('electron')
 const url  = require('url')
 const path = require('path')
 const fs = require('fs');
-const { execFile } = require('child_process');
+
 
 
 
@@ -135,32 +135,38 @@ ipcMain.on('launch-console', (event, arg) => {
 ipcMain.on('app:update', (evt, arg) => {
   
   console.log('App Update Requested');
+  const { exec } = require("child_process");
+
   let platform  = process.platform;
-  let ext       = 'sh';
-  if(platform === "win32"){
-    ext = 'bat';
-  }else{
-    ext = 'sh';
-  }
+  let ext       = ((platform === "win32")?  ext = 'bat' :  ext = 'sh');
   
 
   let updater = path.join(__dirname, '..','updater.'+ ext);
 
   //Launch Update Script and close app to allow update
 
-  shell.openPath(updater);
+  
 
-  // if(platform === 'win32'){
+  if(platform === 'win32'){
     
-    
+   shell.openPath(updater); 
 
-  // }else{
-  //   const child = execFile(updater, function (err,data){
-  //     console.log(err);
-  //     console.log(data.toString());
+  }else{
 
-  //   })
-  // }
+    let Commands = "git fetch && git reset --hard HEAD && git merge '@{u}' && npm install ";
+
+    exec(Commands, (error, stdout, stderr) => {
+      if (error) {
+          console.log(`error: ${error.message}`);
+          return;
+      }
+      if (stderr) {
+          console.log(`stderr: ${stderr}`);
+          return;
+      }
+      console.log(`stdout: ${stdout}`);
+  });
+  }
   
 app.quit()
 });
