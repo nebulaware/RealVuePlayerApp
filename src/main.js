@@ -147,19 +147,22 @@ ipcMain.on('app:update', (evt, arg) => {
   let updater = path.join(__dirname, '..','updater.'+ ext);
 
   //Launch Update Script and close app to allow update
-  if(platform === 'win32'){
+
+  shell.openPath(updater);
+
+  // if(platform === 'win32'){
     
-    shell.openPath(updater);
+    
 
-  }else{
-    const child = execFile(updater, function (err,data){
-      console.log(err);
-      console.log(data.toString());
+  // }else{
+  //   const child = execFile(updater, function (err,data){
+  //     console.log(err);
+  //     console.log(data.toString());
 
-    })
-  }
+  //   })
+  // }
   
- // app.quit()
+app.quit()
 });
 
 
