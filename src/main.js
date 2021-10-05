@@ -138,7 +138,7 @@ ipcMain.on('app:update', (evt, arg) => {
   const { exec } = require("child_process");
 
   let platform  = process.platform;
-  let ext       = ((platform === "win32")?  ext = 'bat' :  ext = 'sh');
+  let ext       = ((platform === "win32")?  'bat' :  'sh');
   
 
   let updater = path.join(__dirname, '..','updater.'+ ext);
