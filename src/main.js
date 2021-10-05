@@ -160,21 +160,7 @@ ipcMain.on('app:update', (evt, arg) => {
     const { exec } = require("child_process");
     
     updater.linux(exec);
-
-
-  //   let Commands = "git fetch && git reset --hard HEAD && git merge '@{u}' && npm install ";
-
-  //   exec(Commands, (error, stdout, stderr) => {
-  //     if (error) {
-  //         console.log(`error: ${error.message}`);
-  //         return;
-  //     }
-  //     if (stderr) {
-  //         console.log(`stderr: ${stderr}`);
-  //         return;
-  //     }
-  //     console.log(`stdout: ${stdout}`);
-  // });
+    
   }
   
 

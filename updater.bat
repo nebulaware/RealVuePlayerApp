@@ -4,13 +4,13 @@ timeout 5
 
 
 echo Connecting to update server
-timeout 5
+
 
 
 
 
 echo Installing Updates
-timeout 5
+npm install
 
 
 echo Relaunching Application

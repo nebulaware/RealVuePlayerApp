@@ -1193,21 +1193,47 @@ function DisplayClass(){
 		var Body;
 		
 		Body = '<h3>Update Available</h3>';
-		Body += '<p>There is an update available! You are running version: ' + (App.Version / 10000) + ' and the latest version is ' + (version / 10000) + ''
-		Body += '<button class="btn" onclick="App.UpdateApp();" style="margin: 36px 0 18px 0;">Update Now</button>';
+		Body += '<p>There is an update available! You are running version: ' + (App.Version / 10000) + ' and the latest version is ' + (version / 10000) + '</p>'
+		Body += '<button class="btn" onclick="Display.PerformingUpdate();" style="margin: 36px 0 18px 0;">Update Now</button>';
 		Body += '<button class="btn" onclick="Display.DisplaySidebar(\'close\');"><i class="far fa-times-circle"></i> Cancel</button>';
 		
 
 		
 		
-		_("sidebar_title").innerHTML = '<i class="fas fa-cog"></i> Settings';
+		_("sidebar_title").innerHTML = '<i class="fas fa-cog"></i> Updater';
 		this.SidebarContent(Body);		
-
-
-
 
 	}	
 
+	this.PerformingUpdate = function PerformingUpdate(){
+
+		var Body;
+
+		if(App.NetCon){
+
+			App.UpdateApp(); //Run Update
+			
+			Body = '<h3>Please wait</h3>';
+			Body += '<p>We are going to download the latest update and install.</p>';
+			Body += '<button class="btn" onclick="App.UpdateApp();" style="margin: 36px 0 18px 0;">Update Now</button>';
+			Body += '<button class="btn" onclick="Display.DisplaySidebar(\'close\');"><i class="far fa-times-circle"></i> Cancel</button>';
+		
+		}else{
+
+			Body = '<h3>No Internet Connection</h3>';
+			Body += '<p>A internet connection is required to download the update. Please make sure you have internet and click Try Again.</p>';
+			Body += '<button class="btn" onclick="Display.PerformingUpdate();" style="margin: 36px 0 18px 0;">Try Again</button>';
+			Body += '<button class="btn" onclick="Display.DisplaySidebar(\'close\');"><i class="far fa-times-circle"></i> Cancel</button>';
+
+		}
+
+		
+		
+		_("sidebar_title").innerHTML = '<i class="fas fa-cog"></i> Updater';
+		this.SidebarContent(Body);	
+
+
+	}
 	this.DisplayMessage = function DisplayMessage (h,s,m){
 
 		App.Log (h + ' | ' + s + ' | ' + m);
