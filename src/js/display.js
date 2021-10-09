@@ -1111,7 +1111,7 @@ function DisplayClass(){
 		Body += '<p><strong>Notification:</strong> ' + App.PushStatus + '</p>';
 		Body += '<p><strong>Location:</strong> ' + Location.Status + '</p>';
 		Body += '<h3>App</h3>';
-		Body += '<p><strong>Version:</strong> ' + App.Version + ' - <strong>(<i>' + App.VersionPhase + '</i>)</strong></p>';
+		Body += '<p><strong>Version:</strong> ' + (App.Version/10000) + ' - <strong>(<i>' + App.VersionPhase + '</i>)</strong></p>';
 		
 		
 		_("sidebar_title").innerHTML = '<i class="fas fa-tv"></i> Display Status';

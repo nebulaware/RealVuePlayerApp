@@ -1,6 +1,6 @@
 {
   "name": "realvueplayer",
-  "version": "2.10.45",
+  "version": "2.10.48",
   "description": "RealVue Player Application",
   "main": "src/main.js",
   "scripts": {
