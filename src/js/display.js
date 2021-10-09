@@ -181,7 +181,8 @@ function DisplayClass(){
 					Display.UpdateAvailable(CurrentVersion);
 
 				}else if(Display.UpdateMethod == 'auto'){
-					App.Update();
+					toast.info('Remote Update Initiated');
+					App.UpdateApp();
 				}
 
 			}else{
@@ -1215,8 +1216,7 @@ function DisplayClass(){
 			
 			Body = '<h3>Please wait</h3>';
 			Body += '<p>We are going to download the latest update and install.</p>';
-			Body += '<button class="btn" onclick="App.UpdateApp();" style="margin: 36px 0 18px 0;">Update Now</button>';
-			Body += '<button class="btn" onclick="Display.DisplaySidebar(\'close\');"><i class="far fa-times-circle"></i> Cancel</button>';
+
 		
 		}else{
 
