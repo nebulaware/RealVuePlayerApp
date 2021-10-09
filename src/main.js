@@ -157,7 +157,7 @@ ipcMain.on('app:update', (evt, arg) => {
 
   }else{
 
-    const { exec } = require("child_process");
+    let { exec } = require("child_process");
     
     updater.linux(exec);
     

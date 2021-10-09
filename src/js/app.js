@@ -10,7 +10,7 @@ const { fstat } = require("original-fs");
 function ApplicationManager(){
 	//APPLICATION DATA
 	this.Data			= {};
-	this.Version		= 21046;
+	this.Version		= 21047;
 	this.VersionPhase	= 'ALPHA';
 	this.View			= 'Viewer';
 	
@@ -79,7 +79,7 @@ function ApplicationManager(){
 		this.GetRunMode();
 		
 		this.Log ('Run Mode:'+ this.RunMode);
-		
+	
 		this.UpdateResolution();
 		
 		//Initialize File Manager
