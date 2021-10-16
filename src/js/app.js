@@ -10,7 +10,7 @@ const { fstat } = require("original-fs");
 function ApplicationManager(){
 	//APPLICATION DATA
 	this.Data			= {};
-	this.Version		= 21048;
+	this.Version		= 21049;
 	this.VersionPhase	= 'ALPHA';
 	this.View			= 'Viewer';
 	
