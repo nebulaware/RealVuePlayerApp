@@ -12,6 +12,7 @@ function VimeoManager (){
 	this.Player;
 	
 	this.State;
+	this.Downloaded = false;
 	this.TimeCheck; //USED FOR MONITORING TIMEOUT 
 	this.PlayPos	= {'current':0,'last':0}; //PLAYER PLAY POSITION (SECONDS IN VIDEO)
 	this.Playing	= false;
@@ -29,10 +30,14 @@ function VimeoManager (){
 		if(this.Download(data)){
 			//Video Downloaded
 			var local	= FM.GetLocal(data)
-			Video.Play(local);
+			this.Downloaded = true;
+			
+
+			Video.Play(local,VimeoPlayer.MonitorPlayer);
 
 		}else{
 			//Stream Video ** Requires Internet access **
+			this.Downloaded = false;
 			this.RunAPI(data);
 		}
 
@@ -85,7 +90,7 @@ function VimeoManager (){
 
 		//Determine the URL and if the method is streaming or downloading
 
- 	return url.match(/(https?:\/\/(.+?\.)?player.vimeo\.com\/external(\/[A-Za-z0-9\-\._~:\/\?#\[\]@!$&'\(\)\*\+,;\=]*)?)/g);
+ 		return url.match(/(https?:\/\/(.+?\.)?player.vimeo\.com\/external(\/[A-Za-z0-9\-\._~:\/\?#\[\]@!$&'\(\)\*\+,;\=]*)?)/g);
 
 
 	}
@@ -188,34 +193,52 @@ function VimeoManager (){
 		 clearTimeout(VimeoPlayer.TimeCheck);
 		 
 		let TimeLimit = 5000;
+
 		
 		 if(Presenter.PresentationData.data.source == 'vimeo'){
 			
 			App.Log('Monitor System Running');
-			 
+			
+			if(VimeoPlayer.Downloaded){
+
+				VimeoPlayer.PlayPos.current = Video.Player.remainingTimeDisplay();
+			}
+
 			 
 			 if(VimeoPlayer.PlayPos.current == VimeoPlayer.PlayPos.last){
 				 //NO DETECTED PROGRESS
 				 
-				 if(VimeoPlayer.Playing == true){
-					 //PLAYER SHOULD BE PLAYING BUT DOESNT APPEAR TO BE
-					 //console.warn ('Player appears to not be playing');
-				 	 toast.error('Player appears to not be playing.')		 
-					 
-					 
-					 VimeoPlayer.PlayFailed ++;
-					 
-				 }else{
-					 
-					 //PLAYER HAS BEEN MANUALLY PAUSED
-					 
-					 
-				 }
-				 
-				 
+				if(VimeoPlayer.Downloaded){
+
+					//Video Player
+					//if(Video.Player.paused()){
+						//Player is paused
+
+					//}else{
+
+						toast.error('Player appears to not be playing.')		  	 
+						VimeoPlayer.PlayFailed ++;
+					
+					//}
+
+
+				}else{
+
+					if(VimeoPlayer.Playing == true){
+						//PLAYER SHOULD BE PLAYING BUT DOESNT APPEAR TO BE
+						//console.warn ('Player appears to not be playing');
+						toast.error('Player appears to not be playing.')		 
+	
+						VimeoPlayer.PlayFailed ++;
+						
+					}else{
+						
+						//PLAYER HAS BEEN MANUALLY PAUSED					 
+						
+					}
 			 
-				 //LOG ERROR
-				 
+				}
+				 //LOG ERROR				 
 				 
 			 }else{
 				
@@ -236,8 +259,8 @@ function VimeoManager (){
 					 Display.Log('ds-vm-fail',VimeoPlayer.PlayPos.last); //LOG FAILED EVENT
 					 
 					 //MAKE SURE THERE IS A NETWORK CONNECTION
-					 App.Reload();
-					 
+					 toast.error('Reporting Error. Please wait')					
+					 setTimeout(App.Reload,3000);
 				 }else{
 					 
 					 toast.warning('No Network Connection. Retrying in 20 seconds');
@@ -250,15 +273,17 @@ function VimeoManager (){
 			 }
 			 
 			 //var State = VimeoPlayer.Player.getPlayerState();
-			 
-			 VimeoPlayer.CheckSize();	 
-			 
+			 //Check size of video player if streaming
+			 if(!VimeoPlayer.Downloaded){
+			 	VimeoPlayer.CheckSize();	 
+			 }
+
 			 VimeoPlayer.TimeCheck = setTimeout(VimeoPlayer.MonitorPlayer, TimeLimit); //CHECK EVERY 5 SECONDS
 			 
 			 
 			
 			 
-			 //App.Log('Youtube State: ' + Youtube.GetState(State));
+		
 			 
 
 			 
@@ -353,6 +378,14 @@ function VimeoManager (){
 		_("viewer").innerHTML = Body;			
 
 	}	
+
+	this.CheckStatus = function CheckStatus(){
+		//Called by the display to check the status of source (if active)
+
+
+		
+	}		
+
 }
 
 var VimeoPlayer = new VimeoManager();

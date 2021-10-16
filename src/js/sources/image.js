@@ -76,6 +76,13 @@ function ImageManager (){
 
 	}
 
+	
+	this.CheckStatus = function CheckStatus(){
+		//Called by the display to check the status of source (if active)
+
+
+		
+	}	
 }
 
 var Image = new ImageManager();

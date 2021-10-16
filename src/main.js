@@ -24,6 +24,8 @@ try {
 
 }
 
+
+
 //Download Manager
 const DownloadManager = require("electron-download-manager");
 DownloadManager.register({
@@ -53,7 +55,7 @@ function createWindow () {
 
 
   // Open the DevTools.
- //mainWindow.webContents.openDevTools()
+//mainWindow.webContents.openDevTools()
 }
 
 // This method will be called when Electron has finished

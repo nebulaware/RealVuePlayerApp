@@ -127,7 +127,7 @@ function PlaylistManager (){
 			
 			if(Item.type == 'image'){
 
-				Image.Play(Item.source);
+				Image.Play(Item.source,Playlist.MonitorPlayer);
 
 			}else if(Item.type == 'video'){
 
@@ -217,7 +217,18 @@ function PlaylistManager (){
 		_("viewer").innerHTML = Body;			
 
 	}	
-	
+	this.MonitorPlayer = function MonitorPlayer(){
+
+		
+	}
+
+	this.CheckStatus = function CheckStatus(){
+		//Called by the display to check the status of source (if active)
+
+
+		
+	}	
+
 }
 
 var Playlist = new PlaylistManager();

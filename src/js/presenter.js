@@ -5,7 +5,7 @@ function PresenterManager (){
 	this.CurrentPID			= 'unset';
 	this.Mode				= 'auto';
 	
-
+	this.CurrentSource		= '';
 	
 	this.Sources			= {}; //STORE ALL THE PLUGIN SOURCES
 	
@@ -55,7 +55,9 @@ function PresenterManager (){
 		var Source	= this.PresentationData.data.source;
 		var Data 	= this.PresentationData.data.data;
 		
-		
+		//Set Current Source
+		this.CurrentSource = Source;
+
 		//** TO DO - See if source exists if not actually load it to the dom.
 		
 				
@@ -102,7 +104,6 @@ function PresenterManager (){
 		
 		_("viewer").innerHTML = Body;		
 		
-
 		
 	}
 	

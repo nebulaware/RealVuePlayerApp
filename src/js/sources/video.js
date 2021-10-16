@@ -12,6 +12,12 @@ function VideoManager (){
 	this.PlayerIndex = 0;
 	this.HasPlayer = false;
 	
+	//MONITOR PLAYING
+	this.TimeCheck; //USED FOR MONITORING TIMEOUT 
+	this.PlayPos	= {'current':0,'last':0}; //PLAYER PLAY POSITION (SECONDS IN VIDEO)
+	this.Playing	= false;
+	this.PlayFailed	= 0;
+	
 	
 	this.Init = function Init(data,blob){
 		
@@ -46,7 +52,7 @@ function VideoManager (){
 	
 	}
 
-	this.Play = function Play(data){
+	this.Play = function Play(data,monitor){
 		
 		var Path	= data;
 		var File	= this.GetFile(Path);
@@ -58,9 +64,8 @@ function VideoManager (){
 			this.PlayError('invalid_extension');
 		}
 		
-
-	
-		
+		//Clear any existing video monitor
+		clearTimeout(Video.TimeCheck);
 		
 		if(this.HasPlayer){
 			
@@ -85,6 +90,15 @@ function VideoManager (){
 			//videojs.log('Your player is ready!');
 			
 			this.play();
+
+			//Start Video Monitor: Call the remote monitor if provide else call default
+			if(monitor){
+				monitor();
+			}else{
+				Video.MonitorPlayer();
+			}
+
+
 			//console.log(this);
 			
 			this.on('ended', function(){
@@ -134,14 +148,96 @@ function VideoManager (){
 			
 		}else{
 			
+			
 			Video.Player.play(); //attempt to play again
 			
 			setTimeout(Video.Player.hasStartedMonitor,1000); //Epeat check
 			
+
+			//Video.Player.remainingTimeDisplay()
 			
 		}		
-		
-		
+	}
+
+	this.MonitorPlayer = function MonitorPlayer(){
+
+			//MAKE SURE THERE ARE NO OTHER TIMEOUTS RUNNING ON PLAYER MONITOR
+			 clearTimeout(Video.TimeCheck);
+			 
+			let TimeLimit = 5000;
+			
+			 if(Presenter.PresentationData.data.source == 'video'){
+				
+				App.Log('Video Monitor System Running');
+				
+				//Set Current
+				Video.PlayPos.current = Video.Player.remainingTimeDisplay();
+
+				 
+				 if(Video.PlayPos.current == Video.PlayPos.last){
+					 //NO DETECTED PROGRESS
+					 
+					// if(Video.Player.paused()){
+						 //PLAYER SHOULD BE PLAYING BUT DOESNT APPEAR TO BE
+						 //console.warn ('Player appears to not be playing');
+						  toast.error('Player appears to not be playing.')		 	 
+						  Video.PlayFailed ++;
+						 
+					 //}else{
+						 
+						 //PLAYER HAS BEEN MANUALLY PAUSED
+						 
+					 //}
+					 
+					 
+				 
+					 //LOG ERROR
+					 
+					 
+				 }else{
+					
+					 //PLAYER APPEARS TO BE PROGRESSING - UPDATE THE LAST TIMESTAMP
+					 Video.PlayPos.last = Video.PlayPos.current;
+					 Video.PlayFailed = 0; //ALWAYS RESET ON SUCCESS
+				 }
+				 
+				 
+				 if(Video.PlayFailed > 3){
+					 
+					 //SLOW MONITOR
+					 TimeLimit = 20000
+					 //FAILED TO MANY TIMES - RELOADING
+					 
+					 if(App.NetCon){
+						 
+						 Display.Log('ds-vd-fail',Video.PlayPos.last); //LOG FAILED EVENT
+						 
+						 //MAKE SURE THERE IS A NETWORK CONNECTION
+						 toast.error('Reporting Error. Please wait')					
+						 setTimeout(App.Reload,3000);
+						 
+					 }else{
+						 
+						 toast.warning('No Network Connection. Retrying in 20 seconds');
+						 
+					 }
+					 
+					
+					 
+					 
+				 }
+				 
+			
+				 
+				 
+				 
+				 Video.TimeCheck = setTimeout(Video.MonitorPlayer, TimeLimit); //CHECK EVERY 5 SECONDS
+				 
+				 
+ 
+			 }		
+	
+
 	}
 	
 	
@@ -205,6 +301,13 @@ function VideoManager (){
 		_("viewer").innerHTML = Body;			
 
 	}
+
+	this.CheckStatus = function CheckStatus(){
+		//Called by the display to check the status of source (if active)
+
+
+		
+	}	
 
 }
 

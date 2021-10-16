@@ -797,6 +797,14 @@ function IDXClass(){
 		
 	}
 
+	this.CheckStatus = function CheckStatus(){
+		//Called by the display to check the status of source (if active)
+
+
+		
+	}	
+
+
 }
 
 var IDX = new IDXClass();

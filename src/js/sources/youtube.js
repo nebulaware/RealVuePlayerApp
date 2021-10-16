@@ -47,7 +47,7 @@ function YoutubeManager (){
 		
 		var local	= FM.GetLocal('https://www.youtube.com/watch?v=' + data)
 
-		Video.Play (local)
+		Video.Play (local,Youtube.MonitorVideo)
 		
 	}
 	
@@ -348,8 +348,17 @@ function YoutubeManager (){
 
 	}
 
+	this.CheckStatus = function CheckStatus(){
+		//Called by the display to check the status of source (if active)
 
 
+
+	}
+
+	this.MonitorVideo = function MonitorVideo(){
+		//No monitor currently
+	
+	}
 
 }
 
